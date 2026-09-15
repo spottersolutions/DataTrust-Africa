@@ -1,0 +1,101 @@
+{
+  "object": "page",
+  "id": "3dc48e84-7f05-81ef-8346-d0d03bf3e8a9",
+  "created_time": "2026-09-15T15:09:00.000Z",
+  "last_edited_time": "2026-09-15T15:09:00.000Z",
+  "created_by": {
+    "object": "user",
+    "id": "308d872b-594c-81c8-9043-00027899c34f"
+  },
+  "last_edited_by": {
+    "object": "user",
+    "id": "308d872b-594c-81c8-9043-00027899c34f"
+  },
+  "cover": null,
+  "icon": null,
+  "parent": {
+    "type": "data_source_id",
+    "data_source_id": "cee82a6d-eebd-4d49-8efd-77d09631ce62",
+    "database_id": "7a48f5f4-be93-4ca4-aed8-3630d508b3b3"
+  },
+  "in_trash": false,
+  "is_archived": false,
+  "is_locked": false,
+  "properties": {
+    "Category": {
+      "id": "GVt%3A",
+      "type": "select",
+      "select": {
+        "id": "5e5572ea-38bb-45dd-96fa-4b84a25e1dc9",
+        "name": "Roadmap",
+        "color": "yellow"
+      }
+    },
+    "AI Build Notes": {
+      "id": "U%5E%5B%5C",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "Build the research loop first. DataTrust can be visualized early but advanced cryptography and payouts belong later.",
+            "link": null
+          },
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "plain_text": "Build the research loop first. DataTrust can be visualized early but advanced cryptography and payouts belong later.",
+          "href": null
+        }
+      ]
+    },
+    "Status": {
+      "id": "XPXT",
+      "type": "select",
+      "select": {
+        "id": "c5b9a27b-0afb-45a2-93fe-80c8ef7c85c8",
+        "name": "Planned",
+        "color": "yellow"
+      }
+    },
+    "Priority": {
+      "id": "~%7Bza",
+      "type": "select",
+      "select": {
+        "id": "f814bae1-b6c5-455e-b6fe-f3bb15d2ae39",
+        "name": "Core",
+        "color": "red"
+      }
+    },
+    "Name": {
+      "id": "title",
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "text": {
+            "content": "18 — MVP vs Future Roadmap",
+            "link": null
+          },
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "plain_text": "18 — MVP vs Future Roadmap",
+          "href": null
+        }
+      ]
+    }
+  },
+  "url": "https://app.notion.com/p/18-MVP-vs-Future-Roadmap-3dc48e847f0581ef8346d0d03bf3e8a9",
+  "public_url": null
+}
