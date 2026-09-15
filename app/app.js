@@ -389,13 +389,13 @@ CC.QUIZ = {
 };
 /* ===== 02-shell.jsx ===== */
 /* ================================================================
-   App shell: navigation, badges, shared UI components (step 2)
+   App shell: nav, badges, components — new design system (CSS)
    ================================================================ */
 (function () {
   const {
-    useState,
-    useEffect
+    useState
   } = React;
+  const h = React.createElement;
   CC.NAV = [{
     id: 'home',
     label: 'Home'
@@ -418,112 +418,129 @@ CC.QUIZ = {
     id: 'datatrust',
     label: 'DataTrust'
   }];
-  CC.STATUS_COLORS = {
-    'Source-backed': 'bg-moss/10 text-moss',
-    'Primary source available': 'bg-moss/10 text-moss',
-    'Institutionally verified': 'bg-emerald-100 text-emerald-800',
-    'Community reviewed': 'bg-sky-100 text-sky-800',
-    'AI synthesized': 'bg-indigo-100 text-indigo-800',
-    'Requires further verification': 'bg-amber-100 text-amber-800'
-  };
-  CC.Badge = function Badge({
-    status,
-    className
-  }) {
-    const color = CC.STATUS_COLORS[status] || 'bg-stone-100 text-stone-600';
-    return React.createElement('span', {
-      className: 'inline-block text-[0.65rem] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ' + color + (className ? ' ' + className : '')
-    }, status);
+  CC.STATUS_TAG = {
+    'Source-backed': 'moss',
+    'Primary source available': 'moss',
+    'Institutionally verified': 'green',
+    'Community reviewed': 'sky',
+    'AI synthesized': 'indigo',
+    'Requires further verification': 'amber'
   };
   CC.Tag = function Tag({
     children,
     color
   }) {
-    return React.createElement('span', {
-      className: 'inline-block text-[0.65rem] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ' + (color || 'bg-parchment text-stone-600')
+    return h('span', {
+      className: 'tag' + (color ? ' ' + color : '')
     }, children);
+  };
+  CC.Status = function Status({
+    s
+  }) {
+    return h(CC.Tag, {
+      color: CC.STATUS_TAG[s] || null
+    }, s);
   };
   CC.Header = function Header({
     page,
     go,
-    packCount
+    onSearch
   }) {
     const [open, setOpen] = useState(false);
-    return React.createElement('nav', {
-      className: 'sticky top-0 z-30 bg-paper/95 backdrop-blur border-b border-stone-200',
-      'aria-label': 'Main'
-    }, React.createElement('div', {
-      className: 'max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-3'
-    }, React.createElement('button', {
+    return h('header', {
+      className: 'nav'
+    }, h('div', {
+      className: 'brand',
       onClick: () => go('home'),
-      className: 'font-serif text-lg font-bold tracking-tight shrink-0'
-    }, 'DataTrust ', React.createElement('span', {
-      className: 'text-ochre'
-    }, 'Africa')), React.createElement('div', {
-      className: 'hidden md:flex items-center gap-1'
-    }, CC.NAV.map(n => React.createElement('button', {
+      role: 'button',
+      tabIndex: 0,
+      onKeyDown: e => e.key === 'Enter' && go('home')
+    }, 'DataTrust ', h('b', null, '& CultureCommons')), h('nav', {
+      className: 'links' + (open ? ' mobile-open' : ''),
+      'aria-label': 'Main'
+    }, CC.NAV.map(n => h('button', {
       key: n.id,
-      onClick: () => go(n.id),
-      'aria-current': page === n.id ? 'page' : undefined,
-      className: 'px-3 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ' + (page === n.id ? 'bg-ink text-paper' : 'text-stone-600 hover:bg-parchment')
-    }, n.label, n.id === 'research' && packCount > 0 ? React.createElement('span', {
-      className: 'ml-1.5 inline-flex items-center justify-center h-5 w-5 rounded-full bg-ochre text-white text-[0.65rem] font-bold'
-    }, packCount) : null))), React.createElement('button', {
-      className: 'md:hidden px-3 py-2 rounded-full bg-parchment text-sm font-semibold',
-      onClick: () => setOpen(!open),
-      'aria-expanded': open
-    }, 'Menu')), open ? React.createElement('div', {
-      className: 'md:hidden border-t border-stone-200 bg-paper px-4 py-3 flex flex-wrap gap-2'
-    }, CC.NAV.map(n => React.createElement('button', {
-      key: n.id,
+      className: page === n.id ? 'active' : '',
       onClick: () => {
         go(n.id);
         setOpen(false);
       },
-      className: 'px-3 py-2 rounded-full text-sm font-medium ' + (page === n.id ? 'bg-ink text-paper' : 'text-stone-600 bg-parchment')
-    }, n.label))) : null);
+      'aria-current': page === n.id ? 'page' : undefined
+    }, n.label))), h('div', {
+      className: 'actions'
+    }, h('button', {
+      className: 'btn small',
+      onClick: onSearch,
+      'aria-label': 'Search (Ctrl+K)'
+    }, '⌕ Search'), h('span', {
+      className: 'muted small',
+      title: 'Prototype — accounts are simulated'
+    }, 'EN ⌄'), h('button', {
+      className: 'btn small',
+      onClick: () => go('datatrust')
+    }, 'Sign in'), h('button', {
+      className: 'btn dark small',
+      onClick: () => go('research')
+    }, 'Create account')), h('button', {
+      className: 'mobile-menu',
+      onClick: () => setOpen(!open),
+      'aria-expanded': open,
+      'aria-label': 'Menu'
+    }, '☰'));
   };
   CC.Footer = function Footer() {
-    return React.createElement('footer', {
-      className: 'border-t border-stone-200 bg-parchment/50 mt-auto'
-    }, React.createElement('div', {
-      className: 'max-w-6xl mx-auto px-6 py-10 grid md:grid-cols-2 gap-6 text-sm text-stone-600'
-    }, React.createElement('div', null, React.createElement('p', {
-      className: 'font-serif font-bold text-ink mb-2'
-    }, 'DataTrust & CultureCommons'), React.createElement('p', null, 'Open research infrastructure for culture, history and the arts — with a privacy-first personal-data ecosystem.')), React.createElement('div', {
-      className: 'md:text-right'
-    }, React.createElement('p', {
-      className: 'mb-1'
-    }, 'Prototype build. AI answers, earnings and privacy metrics are simulations — never production guarantees.'), React.createElement('p', {
-      className: 'text-stone-400'
-    }, 'Research deeply. Learn openly. Control your data.'))));
+    return h('footer', {
+      className: 'page',
+      style: {
+        paddingTop: '10px',
+        paddingBottom: '40px'
+      }
+    }, h('hr', {
+      className: 'hr'
+    }), h('div', {
+      className: 'flex between'
+    }, h('div', null, h('p', {
+      className: 'serif',
+      style: {
+        fontWeight: 700,
+        margin: '0 0 6px'
+      }
+    }, 'DataTrust & CultureCommons'), h('p', {
+      className: 'muted small',
+      style: {
+        margin: 0,
+        maxWidth: '420px'
+      }
+    }, 'Open research infrastructure for culture, history and the arts — with a privacy-first personal-data ecosystem.')), h('div', {
+      className: 'muted small',
+      style: {
+        maxWidth: '380px'
+      }
+    }, 'Prototype build. AI answers, earnings and privacy metrics are simulations — never production guarantees.', h('br', null), 'Research deeply. Learn openly. Control your data.')));
   };
-  CC.Section = function Section({
-    eyebrow,
-    title,
+  CC.SectionTitle = function SectionTitle({
     children,
-    center
+    link,
+    onLink
   }) {
-    return React.createElement('div', {
-      className: (center ? 'max-w-3xl mx-auto text-center ' : '') + 'mb-10'
-    }, eyebrow ? React.createElement('p', {
-      className: 'text-ochre text-xs font-bold tracking-[0.2em] uppercase mb-3'
-    }, eyebrow) : null, React.createElement('h2', {
-      className: 'font-serif text-3xl md:text-4xl font-bold mb-4'
-    }, title), children ? React.createElement('p', {
-      className: 'text-stone-600 leading-relaxed'
-    }, children) : null);
+    return h('h2', {
+      className: 'section-title flex between'
+    }, h('span', null, children), link && h('button', {
+      onClick: onLink,
+      className: 'ai',
+      style: {
+        fontSize: '14px'
+      }
+    }, link + ' →'));
   };
 
-  /* Citations: generate APA / MLA / Chicago for a dossier */
+  /* Citations */
   CC.cite = function (d, style) {
     const year = '2026';
     if (style === 'APA') return 'CultureCommons Research Collective. (' + year + '). ' + d.title + ' [Research dossier]. DataTrust & CultureCommons. https://spottersolutions.github.io/DataTrust-Africa/app/';
     if (style === 'MLA') return 'CultureCommons Research Collective. "' + d.title + '." DataTrust & CultureCommons, ' + year + ', spottersolutions.github.io/DataTrust-Africa/app/.';
     return 'CultureCommons Research Collective. "' + d.title + '." Research dossier. DataTrust & CultureCommons, ' + year + '. https://spottersolutions.github.io/DataTrust-Africa/app/.';
   };
-
-  /* Persistent local state helpers */
   CC.store = {
     get(key, fallback) {
       try {
@@ -539,142 +556,183 @@ CC.QUIZ = {
       } catch (e) {}
     }
   };
-})();
-/* ===== 03-research.jsx ===== */
-/* ================================================================
-   Home + Research (dossier view, synthesizer) — step 3
-   ================================================================ */
-(function () {
-  const {
-    useState,
-    useMemo
-  } = React;
-  const h = React.createElement;
 
-  /* ------------------------------ HOME ------------------------------ */
-  CC.HomePage = function HomePage({
-    go
-  }) {
-    return h('div', null, /* Hero */
-    h('header', {
-      className: 'relative overflow-hidden'
-    }, h('div', {
-      className: 'absolute inset-0 bg-gradient-to-br from-ink via-stone-900 to-terra opacity-95',
-      'aria-hidden': 'true'
-    }), h('div', {
-      className: 'relative max-w-5xl mx-auto px-6 py-24 md:py-28 text-center text-paper'
-    }, h('p', {
-      className: 'text-ochrelite text-xs font-bold tracking-[0.3em] uppercase mb-6'
-    }, 'DataTrust & CultureCommons'), h('h1', {
-      className: 'font-serif text-4xl md:text-6xl font-bold leading-tight mb-6'
-    }, 'Research culture. Discover knowledge. Own your data.'), h('p', {
-      className: 'max-w-2xl mx-auto text-stone-300 text-lg leading-relaxed mb-10'
-    }, 'Explore structured cultural research, listen to academic articles, build citation-ready projects, and contribute to an open community — while keeping control of your personal data.'), h('div', {
-      className: 'flex flex-wrap justify-center gap-4'
-    }, h('button', {
-      onClick: () => go('research'),
-      className: 'bg-ochre hover:bg-ochrelite text-white font-semibold px-8 py-3 rounded-full transition'
-    }, 'Start Researching'), h('button', {
-      onClick: () => go('commons'),
-      className: 'border border-stone-500 hover:border-paper text-paper font-semibold px-8 py-3 rounded-full transition'
-    }, 'Explore the Commons'), h('button', {
-      onClick: () => go('datatrust'),
-      className: 'border border-indigo-400 text-indigo-200 hover:border-indigo-200 font-semibold px-8 py-3 rounded-full transition'
-    }, 'Explore DataTrust')))), /* Featured research */
-    h('section', {
-      className: 'max-w-6xl mx-auto px-6 py-20'
-    }, h(CC.Section, {
-      eyebrow: 'Featured research',
-      title: 'Curated dossiers',
-      center: true
-    }, 'High-quality digital reference entries with visible evidence, sources and audio.'), h('div', {
-      className: 'grid md:grid-cols-2 lg:grid-cols-3 gap-6'
-    }, CC.DOSSIERS.map(d => h(CC.DossierCard, {
-      key: d.id,
-      d,
-      go
-    })))), /* Research with AI */
-    h('section', {
-      className: 'bg-parchment/60 border-y border-stone-200'
-    }, h('div', {
-      className: 'max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center'
-    }, h('div', null, h('p', {
-      className: 'text-ochre text-xs font-bold tracking-[0.2em] uppercase mb-3'
-    }, 'Research with AI'), h('h3', {
-      className: 'font-serif text-2xl font-bold mb-3'
-    }, 'The Research Synthesizer'), h('p', {
-      className: 'text-stone-600 leading-relaxed mb-4'
-    }, 'Enter a cultural tradition, historical artifact, ancient text, artist, technology, or historical question. The synthesizer produces a structured dossier — with evidence context and an honest uncertainty indicator, never implied infallibility.'), h('button', {
-      onClick: () => go('research', {
-        synthesize: true
-      }),
-      className: 'bg-ochre hover:bg-ochrelite text-white font-semibold px-6 py-2.5 rounded-full transition text-sm'
-    }, 'Try Research Synthesizer')), h('div', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 text-sm text-stone-500 space-y-2 shadow-sm'
-    }, h('p', {
-      className: 'font-semibold text-stone-700 mb-2'
-    }, 'Example searches'), ['How was Renaissance tempera manufactured?', 'What were cuneiform tablets made from?', 'How did Maya astronomers record celestial cycles?', 'Explain Edo woodblock registration techniques.'].map(q => h('button', {
-      key: q,
-      onClick: () => go('research', {
-        synthesize: q
-      }),
-      className: 'block w-full text-left rounded-lg border border-stone-200 px-4 py-2.5 hover:border-ochre hover:text-ochre transition'
-    }, '"' + q + '"'))))), /* Two ecosystems */
-    h('section', {
-      className: 'max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-10'
-    }, h('div', null, h('p', {
-      className: 'text-ochre text-xs font-bold tracking-[0.2em] uppercase mb-3'
-    }, 'CultureCommons'), h('h3', {
-      className: 'font-serif text-2xl font-bold mb-3'
-    }, 'The research ecosystem'), h('p', {
-      className: 'text-stone-600 leading-relaxed mb-4'
-    }, 'Discover → Understand → Verify → Save → Research → Use → Share → Contribute. The loop is visible everywhere: dossiers, evidence layers, citations, audio articles, research packs and the community Commons.'), h('button', {
-      onClick: () => go('explore'),
-      className: 'text-ochre font-semibold text-sm hover:underline'
-    }, 'Explore →')), h('div', null, h('p', {
-      className: 'text-indigo text-xs font-bold tracking-[0.2em] uppercase mb-3'
-    }, 'DataTrust'), h('h3', {
-      className: 'font-serif text-2xl font-bold mb-3'
-    }, 'The data-control ecosystem'), h('p', {
-      className: 'text-stone-600 leading-relaxed mb-4'
-    }, 'Keep your data private, donate it to education, or monetize eligible telemetry — with transparent provenance, an 85% contributor royalty pool, and a full earnings ledger. Simulated in this prototype.'), h('button', {
-      onClick: () => go('datatrust'),
-      className: 'text-indigo font-semibold text-sm hover:underline'
-    }, 'Open DataTrust →'))));
+  /* Card images per dossier (same set the design uses) */
+  CC.IMAGES = {
+    d5: 'https://images.unsplash.com/photo-1564399579883-451a5d44ec08?auto=format&fit=crop&w=500&q=80',
+    d2: 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=500&q=80',
+    d1: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=500&q=80',
+    d4: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=500&q=80',
+    d3: 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=500&q=80'
   };
+  CC.REGIONS = [['Africa', 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=500&q=80'], ['Asia', 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=500&q=80'], ['Europe', 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=500&q=80'], ['Middle East', 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?auto=format&fit=crop&w=500&q=80'], ['Americas', 'https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=500&q=80'], ['Oceania', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=500&q=80']];
 
-  /* Dossier card (used on Home, Explore, Commons) */
+  /* Dossier card — new design */
   CC.DossierCard = function DossierCard({
     d,
-    go
+    go,
+    i
   }) {
+    const srcCount = d.primarySources.length + d.academicSources.length + d.institutionalSources.length;
     return h('article', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm flex flex-col'
-    }, h('div', {
-      className: 'flex items-center gap-2 mb-3 flex-wrap'
-    }, h(CC.Tag, {
-      color: 'bg-parchment text-stone-600'
-    }, d.category), h(CC.Badge, {
-      status: d.reviewStatus
-    })), h('h3', {
-      className: 'font-serif text-xl font-bold mb-2 leading-snug'
-    }, d.title), h('p', {
-      className: 'text-sm text-stone-600 leading-relaxed mb-4 flex-1'
-    }, d.overview.slice(0, 150) + '…'), h('div', {
-      className: 'flex items-center gap-3 text-xs text-stone-400 mb-4'
-    }, h('span', null, d.readingTime + ' min read'), h('span', {
-      'aria-hidden': 'true'
-    }, '·'), h('span', null, 'Audio ' + d.audioMinutes + ' min'), h('span', {
-      'aria-hidden': 'true'
-    }, '·'), h('span', null, d.primarySources.length + d.academicSources.length + d.institutionalSources.length + ' sources')), h('button', {
+      className: 'card',
       onClick: () => go('dossier', {
         id: d.id
       }),
-      className: 'text-ochre font-semibold text-sm hover:underline self-start'
-    }, 'Open dossier →'));
+      role: 'button',
+      tabIndex: 0,
+      onKeyDown: e => e.key === 'Enter' && go('dossier', {
+        id: d.id
+      })
+    }, h('img', {
+      src: CC.IMAGES[d.id],
+      alt: '',
+      loading: 'lazy'
+    }), h('div', {
+      className: 'card-body'
+    }, h(CC.Tag, null, d.category), h('h3', null, d.title), h('p', null, d.overview.slice(0, 90) + '…'), h('div', {
+      className: 'meta'
+    }, h('span', null, '◷ ' + d.readingTime + ' min'), h('span', null, '▧ ' + srcCount + ' sources'), h('span', {
+      title: 'Audio available'
+    }, '🎧'))));
   };
-
-  /* --------------------------- DOSSIER VIEW --------------------------- */
+})();
+/* ===== 03-home.jsx ===== */
+/* ================================================================
+   Home page — matches the approved design mock
+   ================================================================ */
+(function () {
+  const {
+    useState
+  } = React;
+  const h = React.createElement;
+  CC.CHIPS = [['🎨', 'Art'], ['🏛', 'History'], ['🏺', 'Archaeology'], ['📖', 'Literature'], ['🌿', 'Materials'], ['🔺', 'Civilizations'], ['🎭', 'Cultures'], ['🌍', 'Maps'], ['◷', 'Timelines']];
+  CC.HomePage = function HomePage({
+    go
+  }) {
+    const [q, setQ] = useState('');
+    function research() {
+      go('research', {
+        synthesize: q || true
+      });
+    }
+    return h('div', null, /* hero */
+    h('section', {
+      className: 'hero'
+    }, h('div', {
+      className: 'hero-inner'
+    }, h('div', {
+      className: 'eyebrow'
+    }, 'Culture × Knowledge × People × A Fairer Data Future'), h('h1', null, 'Explore the past.', h('br', null), 'Build a ', h('span', {
+      className: 'orange'
+    }, 'brighter future.')), h('p', null, 'Discover structured cultural research, listen to academic articles, create citation-ready projects, and contribute to an open community — while keeping control of your personal data.'), h('div', {
+      className: 'hero-buttons'
+    }, h('button', {
+      className: 'btn orangebtn',
+      onClick: () => go('explore')
+    }, 'Start Exploring →'), h('button', {
+      className: 'btn',
+      onClick: () => go('audio'),
+      style: {
+        color: '#fff'
+      }
+    }, '▶  Listen to research')))), /* search */
+    h('div', {
+      className: 'search-wrap'
+    }, h('div', {
+      className: 'search'
+    }, h('span', {
+      'aria-hidden': 'true'
+    }, '⌕'), h('input', {
+      id: 'q',
+      value: q,
+      onChange: e => setQ(e.target.value),
+      onKeyDown: e => e.key === 'Enter' && research(),
+      placeholder: 'Search anything… e.g. Maya astronomy, Renaissance pigments, West African oral traditions',
+      'aria-label': 'Search'
+    }), h('button', {
+      className: 'ai',
+      onClick: research
+    }, '✦ Try AI Research'), h('button', {
+      className: 'arrow',
+      onClick: research,
+      'aria-label': 'Go'
+    }, '→'))), /* content */
+    h('main', {
+      className: 'page'
+    }, h('div', {
+      className: 'chips'
+    }, CC.CHIPS.map(([icon, label]) => h('button', {
+      key: label,
+      className: 'chip',
+      onClick: () => go('explore', {
+        q: label
+      })
+    }, icon + ' ' + label))), h('div', {
+      className: 'grid'
+    }, h('section', null, h(CC.SectionTitle, {
+      link: 'All research',
+      onLink: () => go('research')
+    }, 'Featured Research'), h('div', {
+      className: 'cards'
+    }, CC.DOSSIERS.map((d, i) => h(CC.DossierCard, {
+      key: d.id,
+      d,
+      go,
+      i
+    }))), h('section', {
+      className: 'regions'
+    }, h(CC.SectionTitle, {
+      link: 'Explore',
+      onLink: () => go('explore')
+    }, 'Explore by Region'), h('div', {
+      className: 'region-grid'
+    }, CC.REGIONS.map(([name, img]) => h('button', {
+      key: name,
+      className: 'region',
+      onClick: () => go('explore', {
+        region: name
+      })
+    }, h('img', {
+      src: img,
+      alt: '',
+      loading: 'lazy'
+    }), h('span', null, name)))))), h('aside', {
+      className: 'side'
+    }, h('div', {
+      className: 'promo'
+    }, h('h3', null, 'Research with AI'), h('p', null, 'Enter any topic and get a structured dossier with sources, visuals, a timeline and audio.'), h('button', {
+      className: 'btn small',
+      style: {
+        background: '#fff',
+        color: '#111',
+        border: 0
+      },
+      onClick: () => go('research', {
+        synthesize: true
+      })
+    }, 'Try Research Synthesizer →')), h('div', {
+      className: 'promo light'
+    }, h('h3', null, 'Your data. Your choice.'), h('p', null, 'Keep it private, support educational research, or monetize it transparently.'), h('button', {
+      className: 'btn small',
+      onClick: () => go('datatrust')
+    }, 'Explore DataTrust →')), h('div', {
+      className: 'promo light'
+    }, h('h3', null, 'Join a global community'), h('p', null, 'Students, teachers, researchers and institutions sharing knowledge openly.'), h('button', {
+      className: 'btn small',
+      onClick: () => go('commons')
+    }, 'Visit the Commons →'))))));
+  };
+})();
+/* ===== 03-research.jsx ===== */
+/* ================================================================
+   Research: dossier view + AI synthesizer (new design)
+   ================================================================ */
+(function () {
+  const {
+    useState
+  } = React;
+  const h = React.createElement;
   const HL_COLORS = {
     Important: '#fde68a',
     Evidence: '#bbf7d0',
@@ -683,6 +741,8 @@ CC.QUIZ = {
     Counterargument: '#fecaca',
     'Need verification': '#fed7aa'
   };
+
+  /* --------------------------- DOSSIER --------------------------- */
   CC.DossierPage = function DossierPage({
     id,
     go,
@@ -698,6 +758,7 @@ CC.QUIZ = {
       notes: [],
       saved: false
     };
+    const srcCount = d.primarySources.length + d.academicSources.length + d.institutionalSources.length;
     function update(patch) {
       setWorkspace(w => Object.assign({}, w, {
         [d.id]: Object.assign({}, ws, patch)
@@ -717,159 +778,237 @@ CC.QUIZ = {
       });
       sel.removeAllRanges();
     }
+    function downloadPack() {
+      const pack = '# Research Pack: ' + d.title + '\n\n## Overview\n' + d.overview + '\n\n## Historical context\n' + d.context + '\n\n## Chronology\n' + d.chronology.map(c => '- ' + c[0] + ': ' + c[1]).join('\n') + '\n\n## Key claims & evidence\n' + d.claims.map(c => '- ' + c.text + ' [' + c.status + ', ' + c.evidence + ' sources]').join('\n') + '\n\n## Sources\nPrimary: ' + d.primarySources.join('; ') + '\nAcademic: ' + d.academicSources.join('; ') + '\nInstitutional: ' + d.institutionalSources.join('; ') + '\n\n## Citation (' + citeStyle + ')\n' + CC.cite(d, citeStyle) + '\n';
+      const blob = new Blob([pack], {
+        type: 'text/markdown'
+      });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = d.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-research-pack.md';
+      a.click();
+    }
     return h('div', {
-      className: 'max-w-4xl mx-auto px-6 py-12'
+      className: 'page narrow'
     }, h('button', {
       onClick: () => go('research'),
-      className: 'text-sm text-stone-500 hover:text-ochre mb-6'
-    }, '← All research'), h('div', {
-      className: 'flex items-center gap-2 mb-3 flex-wrap'
-    }, h(CC.Tag, null, d.category), h(CC.Tag, null, d.region), h(CC.Tag, null, d.period), h(CC.Badge, {
-      status: d.reviewStatus
+      className: 'ai small muted',
+      style: {
+        marginBottom: '18px'
+      }
+    }, '← All research'), /* dossier header (section 72) */
+    h('header', {
+      className: 'panel mb'
+    }, h('div', {
+      className: 'flex mb'
+    }, h(CC.Tag, null, d.category), h(CC.Tag, null, d.region), h(CC.Tag, null, d.period), h(CC.Status, {
+      s: d.reviewStatus
     })), h('h1', {
-      className: 'font-serif text-3xl md:text-4xl font-bold mb-6'
-    }, d.title), /* action bar */
-    h('div', {
-      className: 'flex flex-wrap gap-3 mb-10'
+      style: {
+        fontSize: '42px',
+        margin: '0 0 10px'
+      }
+    }, d.title), h('p', {
+      className: 'muted',
+      style: {
+        fontSize: '16px',
+        lineHeight: 1.5,
+        maxWidth: '640px'
+      }
+    }, d.overview.slice(0, 140) + '…'), h('div', {
+      className: 'meta mb',
+      style: {
+        fontSize: '13px'
+      }
+    }, h('span', null, '◷ ' + d.readingTime + ' min read'), h('span', null, '▧ ' + srcCount + ' sources'), h('span', null, '🎧 Audio available'), h('span', null, '✓ ' + d.reviewStatus)), h('div', {
+      className: 'flex'
     }, h('button', {
-      onClick: () => update({
-        saved: !ws.saved
-      }),
-      className: (ws.saved ? 'bg-stone-300 text-stone-700 ' : 'bg-ochre hover:bg-ochrelite text-white ') + 'font-semibold px-5 py-2 rounded-full text-sm transition'
-    }, ws.saved ? 'Saved to workspace' : 'Save to workspace'), h('button', {
+      className: 'btn orangebtn small',
       onClick: () => go('audio', {
         id: d.id
-      }),
-      className: 'bg-ink text-paper font-semibold px-5 py-2 rounded-full text-sm hover:bg-stone-700 transition'
-    }, 'Listen (' + d.audioMinutes + ' min)'), h('button', {
-      onClick: addHighlight,
-      className: 'border border-stone-300 text-stone-600 font-semibold px-5 py-2 rounded-full text-sm hover:border-ochre hover:text-ochre transition'
+      })
+    }, '▶ Listen'), h('button', {
+      className: 'btn small ' + (ws.saved ? 'dark' : ''),
+      onClick: () => update({
+        saved: !ws.saved
+      })
+    }, ws.saved ? 'Saved ✓' : 'Save'), h('button', {
+      className: 'btn small',
+      onClick: addHighlight
     }, 'Highlight selection'), h('button', {
-      onClick: () => {
-        const pack = '# Research Pack: ' + d.title + '\n\n' + '## Overview\n' + d.overview + '\n\n## Historical context\n' + d.context + '\n\n## Chronology\n' + d.chronology.map(c => '- ' + c[0] + ': ' + c[1]).join('\n') + '\n\n## Key claims & evidence\n' + d.claims.map(c => '- ' + c.text + ' [' + c.status + ', ' + c.evidence + ' sources]').join('\n') + '\n\n## Sources\nPrimary: ' + d.primarySources.join('; ') + '\nAcademic: ' + d.academicSources.join('; ') + '\nInstitutional: ' + d.institutionalSources.join('; ') + '\n\n## Citation (' + citeStyle + ')\n' + CC.cite(d, citeStyle) + '\n';
-        const blob = new Blob([pack], {
-          type: 'text/markdown'
-        });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = d.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-research-pack.md';
-        a.click();
-      },
-      className: 'bg-moss text-white font-semibold px-5 py-2 rounded-full text-sm hover:opacity-90 transition'
-    }, 'Generate Research Pack')), h('div', {
-      className: 'grid gap-8'
-    }, section('Overview', h('p', {
-      className: 'text-stone-700 leading-relaxed text-lg'
-    }, d.overview)), section('Historical context', h('p', {
-      className: 'text-stone-600 leading-relaxed'
-    }, d.context)), section('Chronology', h('ol', {
-      className: 'relative border-l-2 border-stone-300 ml-3 space-y-4'
+      className: 'btn small',
+      onClick: () => document.getElementById('cite-box').scrollIntoView({
+        behavior: 'smooth'
+      })
+    }, 'Cite'), h('button', {
+      className: 'btn dark small',
+      onClick: downloadPack
+    }, 'Generate Research Pack'))), /* body sections */
+    h('section', {
+      className: 'panel mb'
+    }, h('h2', null, 'Overview'), h('p', {
+      style: {
+        fontSize: '17px',
+        lineHeight: 1.7
+      }
+    }, d.overview), h('h2', {
+      className: 'mt'
+    }, 'Historical context'), h('p', {
+      className: 'muted',
+      style: {
+        lineHeight: 1.7
+      }
+    }, d.context)), h('section', {
+      className: 'panel mb'
+    }, h('h2', null, 'Chronology'), h('ol', {
+      className: 'timeline'
     }, d.chronology.map((c, i) => h('li', {
-      key: i,
-      className: 'ml-6'
-    }, h('span', {
-      className: 'absolute -left-2 mt-1 h-4 w-4 rounded-full bg-ochre border-2 border-paper',
-      'aria-hidden': 'true'
-    }), h('p', {
-      className: 'text-xs text-stone-500'
+      key: i
+    }, h('p', {
+      className: 'muted small',
+      style: {
+        margin: 0
+      }
     }, c[0]), h('p', {
-      className: 'font-medium'
-    }, c[1]))))), section('Materials & techniques', h('p', {
-      className: 'text-stone-600 leading-relaxed'
-    }, d.materials)), section('Cultural context', h('p', {
-      className: 'text-stone-600 leading-relaxed'
-    }, d.cultural)), /* Evidence layer */
+      style: {
+        margin: 0,
+        fontWeight: 600
+      }
+    }, c[1])))), h('h2', {
+      className: 'mt'
+    }, 'Materials & techniques'), h('p', {
+      className: 'muted'
+    }, d.materials), h('h2', {
+      className: 'mt'
+    }, 'Cultural context'), h('p', {
+      className: 'muted'
+    }, d.cultural)), /* evidence layer */
     h('section', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
-    }, h('h2', {
-      className: 'font-serif text-xl font-bold mb-1'
-    }, 'Evidence layer'), h('p', {
-      className: 'text-sm text-stone-500 mb-5'
-    }, 'Every significant claim is traceable. Status shows the strength and origin of the evidence.'), h('ul', {
-      className: 'space-y-4'
-    }, d.claims.map((c, i) => h('li', {
+      className: 'panel mb'
+    }, h('h2', null, 'Evidence layer'), h('p', {
+      className: 'muted small mb'
+    }, 'Every significant claim is traceable. Status shows the strength and origin of the evidence — never an "AI verified" label.'), d.claims.map((c, i) => h('div', {
       key: i,
-      className: 'rounded-xl border border-stone-200 p-4'
+      className: 'panel',
+      style: {
+        padding: '16px',
+        marginBottom: '10px'
+      }
     }, h('p', {
-      className: 'font-medium mb-2'
+      style: {
+        margin: '0 0 8px',
+        fontWeight: 600
+      }
     }, c.text), h('div', {
-      className: 'flex items-center gap-3 flex-wrap'
-    }, h(CC.Badge, {
-      status: c.status
+      className: 'flex'
+    }, h(CC.Status, {
+      s: c.status
     }), h('span', {
-      className: 'text-xs text-stone-500'
-    }, c.evidence + ' supporting source' + (c.evidence > 1 ? 's' : ''))))))), /* Sources */
+      className: 'muted small'
+    }, c.evidence + ' supporting source' + (c.evidence > 1 ? 's' : '')))))), /* source panel */
     h('section', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
-    }, h('h2', {
-      className: 'font-serif text-xl font-bold mb-5'
-    }, 'Sources'), [['Primary sources', d.primarySources, 'bg-moss/10 text-moss'], ['Academic sources', d.academicSources, 'bg-sky-100 text-sky-800'], ['Institutional sources', d.institutionalSources, 'bg-emerald-100 text-emerald-800']].map(([label, list, color]) => h('div', {
+      className: 'panel mb'
+    }, h('h2', null, 'Sources'), [['Primary sources', d.primarySources, 'moss'], ['Academic sources', d.academicSources, 'sky'], ['Institutional sources', d.institutionalSources, 'green']].map(([label, list, color]) => h('div', {
       key: label,
-      className: 'mb-4 last:mb-0'
+      className: 'mb'
     }, h('p', {
-      className: 'text-xs font-bold uppercase tracking-wider text-stone-500 mb-2'
-    }, label), h('ul', {
-      className: 'space-y-1.5'
+      className: 'muted small',
+      style: {
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        letterSpacing: '.06em'
+      }
+    }, label), h('ol', {
+      style: {
+        margin: 0,
+        paddingLeft: '18px'
+      }
     }, list.map((s, i) => h('li', {
       key: i,
-      className: 'text-sm text-stone-700 flex gap-2'
-    }, h('span', {
-      className: 'mt-1.5 h-1.5 w-1.5 rounded-full bg-ochre shrink-0'
-    }), s)))))), /* Glossary */
-    section('Glossary', h('dl', {
-      className: 'grid sm:grid-cols-2 gap-4'
+      className: 'small',
+      style: {
+        marginBottom: '4px'
+      }
+    }, s)))))), /* glossary */
+    h('section', {
+      className: 'panel mb'
+    }, h('h2', null, 'Glossary'), h('dl', {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: '12px',
+        margin: 0
+      }
     }, d.glossary.map((g, i) => h('div', {
       key: i,
-      className: 'bg-white rounded-xl border border-stone-200 p-4'
+      className: 'panel',
+      style: {
+        padding: '14px'
+      }
     }, h('dt', {
-      className: 'font-semibold'
+      style: {
+        fontWeight: 700
+      }
     }, g[0]), h('dd', {
-      className: 'text-sm text-stone-600'
-    }, g[1]))))), /* Citations */
+      className: 'muted small',
+      style: {
+        margin: 0
+      }
+    }, g[1]))))), /* citations */
     h('section', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
-    }, h('h2', {
-      className: 'font-serif text-xl font-bold mb-4'
-    }, 'Cite this dossier'), h('div', {
-      className: 'flex gap-2 mb-4'
+      className: 'panel mb',
+      id: 'cite-box'
+    }, h('h2', null, 'Cite this dossier'), h('div', {
+      className: 'chips',
+      style: {
+        padding: '0 0 14px'
+      }
     }, ['APA', 'MLA', 'Chicago'].map(s => h('button', {
       key: s,
-      onClick: () => setCiteStyle(s),
-      className: 'px-4 py-1.5 rounded-full text-sm font-semibold transition ' + (citeStyle === s ? 'bg-ink text-paper' : 'bg-parchment text-stone-600 hover:bg-stone-200')
+      className: 'chip' + (citeStyle === s ? ' active' : ''),
+      onClick: () => setCiteStyle(s)
     }, s))), h('p', {
-      className: 'text-sm text-stone-700 bg-parchment/70 rounded-xl p-4 mb-4 font-mono'
+      className: 'mono'
     }, CC.cite(d, citeStyle)), h('button', {
+      className: 'btn small mt',
       onClick: () => {
         navigator.clipboard && navigator.clipboard.writeText(CC.cite(d, citeStyle));
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
-      },
-      className: 'border border-stone-300 text-stone-600 font-semibold px-5 py-2 rounded-full text-sm hover:border-ochre hover:text-ochre transition'
-    }, copied ? 'Copied!' : 'Copy citation')), /* Highlights & notes */
-    h('section', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
-    }, h('h2', {
-      className: 'font-serif text-xl font-bold mb-4'
-    }, 'Your highlights & notes'), ws.highlights.length === 0 && h('p', {
-      className: 'text-sm text-stone-500 mb-4'
-    }, 'Select any text in this dossier and click "Highlight selection" to annotate it.'), h('ul', {
-      className: 'space-y-2 mb-6'
-    }, ws.highlights.map((hl, i) => h('li', {
-      key: i,
-      className: 'rounded-lg p-3 text-sm',
-      style: {
-        background: HL_COLORS[hl.cat] || '#eee'
       }
-    }, h('span', {
-      className: 'font-bold text-xs uppercase tracking-wider mr-2'
-    }, hl.cat), hl.text))), h('div', {
-      className: 'flex gap-3'
+    }, copied ? 'Copied ✓' : 'Copy citation')), /* highlights & notes */
+    h('section', {
+      className: 'panel mb'
+    }, h('h2', null, 'Your highlights & notes'), ws.highlights.length === 0 && h('p', {
+      className: 'muted small mb'
+    }, 'Select any text in this dossier and click "Highlight selection" to annotate it.'), ws.highlights.map((hl, i) => h('div', {
+      key: i,
+      style: {
+        background: HL_COLORS[hl.cat] || '#eee',
+        borderRadius: '10px',
+        padding: '10px 14px',
+        marginBottom: '8px',
+        fontSize: '14px'
+      }
+    }, h('strong', {
+      style: {
+        fontSize: '11px',
+        textTransform: 'uppercase',
+        letterSpacing: '.06em',
+        marginRight: '8px'
+      }
+    }, hl.cat), hl.text)), h('div', {
+      className: 'flex mt'
     }, h('input', {
+      className: 'input',
+      style: {
+        flex: 1
+      },
       value: note,
       onChange: e => setNote(e.target.value),
-      placeholder: 'Add a private note…',
-      className: 'flex-1 rounded-full border border-stone-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ochre'
+      placeholder: 'Add a private note…'
     }), h('button', {
+      className: 'btn orangebtn small',
       onClick: () => {
         if (note.trim()) {
           update({
@@ -877,42 +1016,63 @@ CC.QUIZ = {
           });
           setNote('');
         }
-      },
-      className: 'bg-ochre text-white font-semibold px-5 py-2 rounded-full text-sm'
-    }, 'Add')), h('ul', {
-      className: 'mt-4 space-y-2'
-    }, ws.notes.map((n, i) => h('li', {
+      }
+    }, 'Add')), ws.notes.map((n, i) => h('div', {
       key: i,
-      className: 'text-sm text-stone-700 bg-parchment/70 rounded-lg p-3'
-    }, n)))), /* Related */
-    h('section', null, h('h2', {
-      className: 'font-serif text-xl font-bold mb-4'
-    }, 'Related topics'), h('div', {
-      className: 'flex flex-wrap gap-3'
+      className: 'small mt',
+      style: {
+        background: '#f6f5f2',
+        borderRadius: '10px',
+        padding: '10px 14px'
+      }
+    }, n))), /* related */
+    h('section', null, h('h2', null, 'Related topics'), h('div', {
+      className: 'flex'
     }, d.related.map(rid => {
       const r = CC.DOSSIERS.find(x => x.id === rid);
       return r ? h('button', {
         key: rid,
+        className: 'chip',
         onClick: () => go('dossier', {
           id: rid
-        }),
-        className: 'bg-white border border-stone-200 rounded-full px-5 py-2 text-sm font-medium hover:border-ochre hover:text-ochre transition'
+        })
       }, r.title) : null;
-    })))));
-    function section(title, body) {
-      return h('section', null, h('h2', {
-        className: 'font-serif text-xl font-bold mb-3'
-      }, title), body);
-    }
+    }))));
   };
 
-  /* ---------------------- AI RESEARCH SYNTHESIZER ---------------------- */
+  /* ---------------------- RESEARCH INDEX + SYNTHESIZER ---------------------- */
+  CC.ResearchIndex = function ResearchIndex({
+    go
+  }) {
+    return h('div', {
+      className: 'page'
+    }, h(CC.SectionTitle, null, 'Research'), h('p', {
+      className: 'muted mb',
+      style: {
+        maxWidth: '640px'
+      }
+    }, 'Browse curated dossiers, or ask the AI Research Synthesizer for a structured entry on any cultural or historical topic.'), h('div', {
+      className: 'mb'
+    }, h('button', {
+      className: 'btn dark',
+      onClick: () => go('research', {
+        synthesize: true
+      })
+    }, '✦ Open the Research Synthesizer')), h('div', {
+      className: 'cards c3'
+    }, CC.DOSSIERS.map((d, i) => h(CC.DossierCard, {
+      key: d.id,
+      d,
+      go,
+      i
+    }))));
+  };
   CC.SynthesizerPage = function SynthesizerPage({
     go,
     preset
   }) {
     const [q, setQ] = useState(preset || '');
-    const [state, setState] = useState('idle'); // idle | working | done
+    const [state, setState] = useState('idle');
     const [result, setResult] = useState(null);
     function synthesize() {
       if (!q.trim()) return;
@@ -936,79 +1096,89 @@ CC.QUIZ = {
       }, 1200);
     }
     return h('div', {
-      className: 'max-w-3xl mx-auto px-6 py-12'
-    }, h(CC.Section, {
-      eyebrow: 'AI Research Synthesizer',
-      title: 'Generate a research dossier',
-      center: true
-    }, 'Enter any cultural or historical topic. In this prototype the synthesizer works against the built-in sample corpus and always shows its confidence — AI output is never automatically authoritative.'), h('div', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
+      className: 'page narrow'
+    }, h(CC.SectionTitle, null, '✦ AI Research Synthesizer'), h('p', {
+      className: 'muted mb'
+    }, 'Enter any cultural or historical topic. The synthesizer works against the sample corpus in this prototype and always shows its confidence — AI output is never automatically authoritative.'), h('div', {
+      className: 'panel'
     }, h('div', {
-      className: 'flex gap-3 mb-2'
+      className: 'flex mb'
     }, h('input', {
+      className: 'input',
+      style: {
+        flex: 1
+      },
       value: q,
       onChange: e => setQ(e.target.value),
       onKeyDown: e => e.key === 'Enter' && synthesize(),
-      placeholder: 'e.g. How did Maya astronomers record celestial cycles?',
-      className: 'flex-1 rounded-full border border-stone-300 px-5 py-2.5 focus:outline-none focus:ring-2 focus:ring-ochre'
+      placeholder: 'e.g. How did Maya astronomers record celestial cycles?'
     }), h('button', {
-      onClick: synthesize,
-      className: 'bg-ochre hover:bg-ochrelite text-white font-semibold px-6 py-2.5 rounded-full transition'
+      className: 'btn orangebtn',
+      onClick: synthesize
     }, 'Synthesize')), h('div', {
-      className: 'flex flex-wrap gap-2 mt-3'
+      className: 'chips',
+      style: {
+        padding: 0
+      }
     }, ['Renaissance tempera', 'Cuneiform tablets', 'Maya astronomy', 'Woodblock registration'].map(s => h('button', {
       key: s,
-      onClick: () => setQ(s),
-      className: 'text-xs bg-parchment rounded-full px-3 py-1.5 text-stone-600 hover:text-ochre'
-    }, s))), state === 'working' && h(CC.LoadingNote, {
-      text: 'Structuring the research… pairing answers with sources and a confidence estimate.'
-    }), state === 'done' && result && h('div', {
-      className: 'mt-6 border-t border-stone-200 pt-6',
+      className: 'chip',
+      onClick: () => setQ(s)
+    }, s))), state === 'working' && h('p', {
+      className: 'muted small mt',
+      role: 'status'
+    }, 'Structuring the research… pairing answers with sources and a confidence estimate.'), state === 'done' && result && h('div', {
+      className: 'mt',
       'aria-live': 'polite'
     }, result.uncertain ? h('div', {
-      className: 'rounded-xl bg-amber-50 border border-amber-200 p-4'
-    }, h('p', {
-      className: 'font-semibold text-amber-900 mb-1'
-    }, 'Limited source evidence'), h('p', {
-      className: 'text-sm text-amber-800'
-    }, 'The sample corpus has no strong match. In the production system this is the uncertainty signal you would see — the AI declines rather than inventing an answer. The full corpus grows as the community publishes dossiers.')) : h('div', null, h('p', {
-      className: 'text-sm text-stone-500 mb-4'
-    }, 'Confidence: ', h('span', {
-      className: 'font-semibold text-moss'
-    }, 'moderate'), ' — synthesized from ' + result.hits.length + ' matching dossier' + (result.hits.length > 1 ? 's' : '') + '. Verify against sources before citing.'), h('div', {
-      className: 'space-y-4'
-    }, result.hits.map(d => h('div', {
+      className: 'notice amber'
+    }, h('strong', null, 'Limited source evidence. '), 'The sample corpus has no strong match. In the production system this is the uncertainty signal you would see — the AI declines rather than inventing an answer.') : h('div', null, h('p', {
+      className: 'small muted mb'
+    }, 'Confidence: ', h('strong', {
+      style: {
+        color: '#166534'
+      }
+    }, 'moderate'), ' — synthesized from ' + result.hits.length + ' matching dossier' + (result.hits.length > 1 ? 's' : '') + '. Verify against sources before citing.'), result.hits.map(d => h('div', {
       key: d.id,
-      className: 'rounded-xl border border-stone-200 p-5'
+      className: 'panel',
+      style: {
+        padding: '18px',
+        marginBottom: '12px'
+      }
     }, h('div', {
-      className: 'flex items-center gap-2 mb-2 flex-wrap'
-    }, h(CC.Badge, {
-      status: 'AI synthesized'
-    }), h(CC.Badge, {
-      status: d.reviewStatus
-    })), h('p', {
-      className: 'font-serif font-bold mb-2'
+      className: 'flex mb'
+    }, h(CC.Status, {
+      s: 'AI synthesized'
+    }), h(CC.Status, {
+      s: d.reviewStatus
+    })), h('h3', {
+      style: {
+        margin: '0 0 8px'
+      }
     }, d.title), h('p', {
-      className: 'text-sm text-stone-600 leading-relaxed mb-3'
+      className: 'muted small',
+      style: {
+        lineHeight: 1.6
+      }
     }, d.overview), h('div', {
-      className: 'flex gap-3'
+      className: 'flex mt'
     }, h('button', {
+      className: 'ai',
       onClick: () => go('dossier', {
         id: d.id
-      }),
-      className: 'text-ochre text-sm font-semibold hover:underline'
+      })
     }, 'Open full dossier →'), h('button', {
+      className: 'ai',
       onClick: () => go('audio', {
         id: d.id
-      }),
-      className: 'text-ink text-sm font-semibold hover:underline'
-    }, 'Listen →')))))))));
+      })
+    }, 'Listen →'))))))));
   };
 })();
 /* ===== 04-audio.jsx ===== */
 /* ================================================================
-   Audio articles: AI speaker, study mode, episodes — step 4
-   Uses the browser's built-in speech synthesis (real TTS).
+   Audio: AI speaker, study mode, episodes (new design)
+   Uses the device's real speech synthesis.
    ================================================================ */
 (function () {
   const {
@@ -1032,8 +1202,7 @@ CC.QUIZ = {
     const [rate, setRate] = useState(1);
     const [voice, setVoice] = useState(null);
     const [voices, setVoices] = useState([]);
-    const [mode, setMode] = useState('listen'); // listen | study
-    const utterRef = useRef(null);
+    const [mode, setMode] = useState('listen');
     const supported = typeof speechSynthesis !== 'undefined';
     useEffect(() => {
       if (!supported) return;
@@ -1042,25 +1211,20 @@ CC.QUIZ = {
       }
       load();
       speechSynthesis.onvoiceschanged = load;
-      return () => {
-        stopAll();
-      };
+      return () => speechSynthesis.cancel();
     }, []);
     useEffect(() => {
-      stopAll();
+      if (supported) speechSynthesis.cancel();
       setIdx(-1);
       setPlaying(false);
       setMode('listen');
     }, [dId]);
-    function stopAll() {
-      if (supported) speechSynthesis.cancel();
-    }
     function speak(from) {
       if (!supported) return;
-      stopAll();
+      speechSynthesis.cancel();
       setPlaying(true);
       let i = from;
-      function next() {
+      (function next() {
         if (i >= sentences.length) {
           setPlaying(false);
           setIdx(-1);
@@ -1070,63 +1234,63 @@ CC.QUIZ = {
         u.rate = rate;
         if (voice) u.voice = voice;
         setIdx(i);
-        utterRef.current = u;
         u.onend = () => {
           i++;
           next();
         };
-        u.onerror = () => {
-          setPlaying(false);
-        };
+        u.onerror = () => setPlaying(false);
         speechSynthesis.speak(u);
-      }
-      next();
+      })();
     }
     function pause() {
-      if (supported) {
-        speechSynthesis.cancel();
-      }
+      if (supported) speechSynthesis.cancel();
       setPlaying(false);
     }
     return h('div', {
-      className: 'max-w-3xl mx-auto px-6 py-12'
-    }, h(CC.Section, {
-      eyebrow: 'Audio articles',
-      title: 'Listen to research',
-      center: true
-    }, 'Every dossier can become a spoken article with sentence-by-sentence highlighting. Speech is generated by your device — a real accessibility feature, not a simulated one.'), /* selector */
-    h('div', {
-      className: 'flex gap-2 flex-wrap mb-8 justify-center'
+      className: 'page narrow'
+    }, h(CC.SectionTitle, null, 'Audio articles'), h('p', {
+      className: 'muted mb'
+    }, 'Every dossier becomes a spoken article with sentence-by-sentence highlighting. Speech is generated by your device — a real accessibility feature, not a simulation.'), h('div', {
+      className: 'chips'
     }, CC.DOSSIERS.map(x => h('button', {
       key: x.id,
-      onClick: () => setDId(x.id),
-      className: 'px-4 py-2 rounded-full text-sm font-medium transition ' + (x.id === dId ? 'bg-ink text-paper' : 'bg-parchment text-stone-600 hover:bg-stone-200')
-    }, x.title))), /* player */
-    h('div', {
-      className: 'bg-ink text-paper rounded-2xl p-6 mb-8'
+      className: 'chip' + (x.id === dId ? ' active' : ''),
+      onClick: () => setDId(x.id)
+    }, x.title))), h('div', {
+      className: 'player mb'
     }, h('p', {
-      className: 'text-ochrelite text-xs font-bold uppercase tracking-wider mb-1'
+      className: 'eyebrow',
+      style: {
+        color: '#ed8a34',
+        margin: '0 0 4px'
+      }
     }, 'Now playing'), h('h3', {
-      className: 'font-serif text-xl font-bold mb-4'
+      style: {
+        margin: '0 0 16px',
+        fontSize: '24px'
+      }
     }, d.title), h('div', {
-      className: 'flex items-center gap-3 flex-wrap'
+      className: 'flex'
     }, h('button', {
+      className: 'playbtn',
       onClick: () => playing ? pause() : speak(idx >= 0 ? idx : 0),
-      className: 'bg-ochre hover:bg-ochrelite text-white font-bold w-12 h-12 rounded-full transition text-lg',
       'aria-label': playing ? 'Pause' : 'Play'
-    }, playing ? '❚❚' : '▶'), h('div', {
-      className: 'flex items-center gap-1'
-    }, [0.8, 1, 1.25, 1.5].map(r => h('button', {
+    }, playing ? '❚❚' : '▶'), [0.8, 1, 1.25, 1.5].map(r => h('button', {
       key: r,
+      className: 'spd' + (rate === r ? ' on' : ''),
       onClick: () => {
         setRate(r);
         if (playing) speak(idx >= 0 ? idx : 0);
+      }
+    }, r + 'x')), voices.length > 0 && h('select', {
+      className: 'input',
+      style: {
+        padding: '8px 14px',
+        maxWidth: '180px',
+        fontSize: '12px'
       },
-      className: 'px-3 py-1.5 rounded-full text-xs font-bold transition ' + (rate === r ? 'bg-paper text-ink' : 'bg-stone-700 text-stone-300 hover:bg-stone-600')
-    }, r + 'x'))), voices.length > 0 && h('select', {
       value: voice ? voice.name : '',
       onChange: e => setVoice(voices.find(v => v.name === e.target.value) || null),
-      className: 'bg-stone-700 text-stone-200 text-xs rounded-full px-3 py-1.5 max-w-[10rem]',
       'aria-label': 'Voice'
     }, h('option', {
       value: ''
@@ -1134,40 +1298,39 @@ CC.QUIZ = {
       key: v.name,
       value: v.name
     }, v.name)))), !supported && h('p', {
-      className: 'text-amber-300 text-sm mt-3'
-    }, 'Your browser does not support speech synthesis — the transcript below remains fully available.')), /* mode toggle */
-    h('div', {
-      className: 'flex gap-2 mb-6'
+      className: 'notice amber mt',
+      style: {
+        margin: '14px 0 0'
+      }
+    }, 'Your browser does not support speech synthesis — the transcript below remains fully available.')), h('div', {
+      className: 'chips'
     }, h('button', {
-      onClick: () => setMode('listen'),
-      className: 'px-5 py-2 rounded-full text-sm font-semibold transition ' + (mode === 'listen' ? 'bg-ink text-paper' : 'bg-parchment text-stone-600')
+      className: 'chip' + (mode === 'listen' ? ' active' : ''),
+      onClick: () => setMode('listen')
     }, 'Transcript'), h('button', {
+      className: 'chip' + (mode === 'study' ? ' active' : ''),
       onClick: () => {
         pause();
         setMode('study');
-      },
-      className: 'px-5 py-2 rounded-full text-sm font-semibold transition ' + (mode === 'study' ? 'bg-ochre text-white' : 'bg-parchment text-stone-600')
+      }
     }, 'Study this article')), mode === 'listen' ? h('article', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm leading-relaxed text-lg'
+      className: 'panel',
+      style: {
+        fontSize: '18px',
+        lineHeight: 1.8
+      }
     }, sentences.map((s, i) => h('span', {
       key: i,
-      className: 'transition-colors cursor-pointer rounded ' + (i === idx ? 'bg-amber-200' : 'hover:bg-parchment'),
+      className: 'sentence' + (i === idx ? ' now' : ''),
       onClick: () => speak(i)
     }, s + ' '))) : h(CC.StudyMode, {
       d
-    }), /* episodes */
-    h('section', {
-      className: 'mt-14'
-    }, h('h2', {
-      className: 'font-serif text-2xl font-bold mb-2'
-    }, 'Research episodes'), h('p', {
-      className: 'text-sm text-stone-500 mb-6'
-    }, 'Connected audio lessons built from multiple dossiers. Select chapters and play them as one journey.'), h(CC.EpisodePlayer, {
-      go
-    })));
+    }), h('section', {
+      className: 'mt'
+    }, h(CC.SectionTitle, null, 'Research episodes'), h('p', {
+      className: 'muted small mb'
+    }, 'Connected audio lessons built from multiple dossiers. Select chapters and play them as one journey.'), h(CC.EpisodePlayer, null)));
   };
-
-  /* ---------------- Study mode quiz ---------------- */
   CC.StudyMode = function StudyMode({
     d
   }) {
@@ -1176,61 +1339,76 @@ CC.QUIZ = {
     const [done, setDone] = useState(false);
     const score = Object.keys(answers).filter(i => answers[i] === quiz[i].answer).length;
     return h('div', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
+      className: 'panel'
     }, h('h3', {
-      className: 'font-serif text-xl font-bold mb-1'
+      style: {
+        marginTop: 0
+      }
     }, 'Study: ' + d.title), h('p', {
-      className: 'text-sm text-stone-500 mb-6'
+      className: 'muted small mb'
     }, '5-question review. Turns listening into learning.'), h('ol', {
-      className: 'space-y-6'
+      style: {
+        paddingLeft: '18px'
+      }
     }, quiz.map((item, qi) => h('li', {
-      key: qi
+      key: qi,
+      className: 'mb'
     }, h('p', {
-      className: 'font-medium mb-3'
-    }, qi + 1 + '. ' + item.q), h('div', {
-      className: 'grid sm:grid-cols-2 gap-2'
+      style: {
+        fontWeight: 600
+      }
+    }, item.q), h('div', {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: '8px'
+      }
     }, item.options.map((opt, oi) => {
       const chosen = answers[qi] === oi;
-      const showResult = done;
       const correct = item.answer === oi;
+      let cls = 'chip';
+      let style = {
+        textAlign: 'left',
+        whiteSpace: 'normal'
+      };
+      if (done && correct) style = Object.assign(style, {
+        background: '#dcfce7',
+        color: '#166534',
+        fontWeight: 700
+      });else if (done && chosen) style = Object.assign(style, {
+        background: '#fee2e2',
+        color: '#b91c1c'
+      });else if (chosen) style = Object.assign(style, {
+        background: '#171816',
+        color: '#fff'
+      });
       return h('button', {
         key: oi,
         disabled: done,
+        className: cls,
+        style,
         onClick: () => setAnswers(a => Object.assign({}, a, {
           [qi]: oi
-        })),
-        className: 'text-left text-sm rounded-xl border px-4 py-2.5 transition ' + (showResult ? correct ? 'border-moss bg-moss/10 text-moss font-semibold' : chosen ? 'border-red-300 bg-red-50 text-red-700' : 'border-stone-200 text-stone-500' : chosen ? 'border-ochre bg-ochre/10 text-ochre font-semibold' : 'border-stone-200 hover:border-ochre')
+        }))
       }, opt);
     }))))), !done ? h('button', {
-      onClick: () => setDone(true),
+      className: 'btn orangebtn',
       disabled: Object.keys(answers).length < quiz.length,
-      className: 'mt-6 bg-ochre text-white font-semibold px-6 py-2.5 rounded-full text-sm disabled:opacity-40'
+      onClick: () => setDone(true)
     }, 'Check answers') : h('div', {
-      className: 'mt-6 rounded-xl bg-parchment p-4'
-    }, h('p', {
-      className: 'font-bold mb-1'
-    }, 'Score: ' + score + ' / ' + quiz.length), h('p', {
-      className: 'text-sm text-stone-600'
-    }, score === quiz.length ? 'Excellent recall. Try a harder dossier or build a Research Pack.' : score >= 3 ? 'Good progress — re-listen to the highlighted sections and retry the missed questions.' : 'Re-listen to the article, then review the missed questions above.')));
+      className: 'notice green mt'
+    }, h('strong', null, 'Score: ' + score + ' / ' + quiz.length + '. '), score === quiz.length ? 'Excellent recall. Try another dossier or build a Research Pack.' : score >= 3 ? 'Good progress — re-listen to the highlighted sections and retry the missed questions.' : 'Re-listen to the article, then review the missed questions above.'));
   };
-
-  /* ---------------- Episode player ---------------- */
-  CC.EpisodePlayer = function EpisodePlayer({
-    go
-  }) {
+  CC.EpisodePlayer = function EpisodePlayer() {
     const [selected, setSelected] = useState(['d5', 'd1']);
     const [playing, setPlaying] = useState(false);
     const supported = typeof speechSynthesis !== 'undefined';
     const chapters = selected.map(id => CC.DOSSIERS.find(d => d.id === id)).filter(Boolean);
-    function toggle(id) {
-      setSelected(s => s.includes(id) ? s.filter(x => x !== id) : s.concat([id]));
-    }
     function playEpisode() {
       if (!supported || chapters.length === 0) return;
       speechSynthesis.cancel();
       setPlaying(true);
-      const intro = new SpeechSynthesisUtterance('Research episode. ' + chapters.map(c => c.title).join('. Then. ') + '.');
-      const queue = [intro];
+      const queue = [new SpeechSynthesisUtterance('Research episode. ' + chapters.map(c => c.title).join('. Then. ') + '.')];
       chapters.forEach((c, i) => {
         queue.push(new SpeechSynthesisUtterance('Chapter ' + (i + 1) + '. ' + c.title + '.'));
         queue.push(new SpeechSynthesisUtterance(c.audioText));
@@ -1241,44 +1419,52 @@ CC.QUIZ = {
       });
     }
     return h('div', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
+      className: 'panel'
     }, h('p', {
-      className: 'text-xs font-bold uppercase tracking-wider text-stone-500 mb-3'
+      className: 'muted small',
+      style: {
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        letterSpacing: '.06em'
+      }
     }, 'Build your episode'), h('div', {
-      className: 'flex flex-wrap gap-2 mb-6'
+      className: 'chips'
     }, CC.DOSSIERS.map(d => h('button', {
       key: d.id,
-      onClick: () => toggle(d.id),
-      className: 'px-4 py-2 rounded-full text-sm font-medium transition ' + (selected.includes(d.id) ? 'bg-ochre text-white' : 'bg-parchment text-stone-600 hover:bg-stone-200')
+      className: 'chip' + (selected.includes(d.id) ? ' active' : ''),
+      onClick: () => setSelected(s => s.includes(d.id) ? s.filter(x => x !== d.id) : s.concat([d.id]))
     }, d.title))), chapters.length > 0 && h('ol', {
-      className: 'mb-6 space-y-2'
+      className: 'mb',
+      style: {
+        paddingLeft: '18px'
+      }
     }, chapters.map((c, i) => h('li', {
       key: c.id,
-      className: 'text-sm text-stone-600 flex gap-3'
-    }, h('span', {
-      className: 'font-bold text-ochre'
-    }, 'Ch. ' + (i + 1)), h('span', null, c.title, h('span', {
-      className: 'text-stone-400'
-    }, ' · ' + c.audioMinutes + ' min'))))), h('button', {
-      onClick: () => playing ? (speechSynthesis.cancel(), setPlaying(false)) : playEpisode(),
+      className: 'small mb'
+    }, h('strong', {
+      style: {
+        color: '#d86d16',
+        marginRight: '8px'
+      }
+    }, 'Ch. ' + (i + 1)), c.title, h('span', {
+      className: 'muted'
+    }, ' · ' + c.audioMinutes + ' min')))), h('button', {
+      className: 'btn dark',
       disabled: chapters.length === 0,
-      className: 'bg-ink text-paper font-semibold px-6 py-2.5 rounded-full text-sm hover:bg-stone-700 transition disabled:opacity-40'
+      onClick: () => playing ? (speechSynthesis.cancel(), setPlaying(false)) : playEpisode()
     }, playing ? 'Stop episode' : 'Play episode (' + chapters.reduce((a, c) => a + c.audioMinutes, 0) + ' min)'));
   };
 })();
 /* ===== 05-datatrust.jsx ===== */
 /* ================================================================
-   DataTrust: marketplace, earnings, permissions, trust — step 5
-   All financial/privacy values are configured simulations.
+   DataTrust: marketplace, earnings, permissions, trust (new design)
    ================================================================ */
 (function () {
   const {
     useState
   } = React;
   const h = React.createElement;
-  CC.DataTrustPage = function DataTrustPage({
-    go
-  }) {
+  CC.DataTrustPage = function DataTrustPage() {
     const [tab, setTab] = useState('dashboard');
     const [perms, setPerms] = useState(() => CC.store.get('permissions', CC.PERMISSIONS));
     const balance = CC.EARNINGS_LEDGER.filter(r => r.status !== 'Donated').reduce((a, r) => a + r.change, 0);
@@ -1293,21 +1479,44 @@ CC.QUIZ = {
     }
     const TABS = [['dashboard', 'Dashboard'], ['marketplace', 'Marketplace'], ['earnings', 'Earnings'], ['permissions', 'Permissions'], ['trust', 'Trust Center']];
     return h('div', {
-      className: 'max-w-6xl mx-auto px-6 py-12'
+      className: 'page'
     }, h('div', {
-      className: 'text-center mb-10'
-    }, h('p', {
-      className: 'text-indigo text-xs font-bold tracking-[0.2em] uppercase mb-3'
+      className: 'hero',
+      style: {
+        minHeight: '240px',
+        borderRadius: '22px',
+        marginBottom: '24px',
+        background: 'linear-gradient(90deg,#17133aee,#3730a3aa),url(https://images.unsplash.com/photo-1526243741027-444d633d7365?auto=format&fit=crop&w=1400&q=80) center/cover'
+      }
+    }, h('div', {
+      className: 'hero-inner',
+      style: {
+        padding: '40px'
+      }
+    }, h('div', {
+      className: 'eyebrow',
+      style: {
+        color: '#c7d2fe'
+      }
     }, 'DataTrust'), h('h1', {
-      className: 'font-serif text-3xl md:text-4xl font-bold mb-4'
-    }, 'Your data, your decisions'), h('p', {
-      className: 'max-w-2xl mx-auto text-stone-600'
-    }, 'Understand what data exists about you, how it is used, who benefits, and what choices you have. Keep it private, donate it to education, or monetize eligible telemetry. Prototype: financial and privacy values are configured simulations, never guarantees.')), h('div', {
-      className: 'flex justify-center gap-2 mb-10 flex-wrap'
+      style: {
+        fontSize: '44px'
+      }
+    }, 'Your data. ', h('span', {
+      className: 'orange'
+    }, 'Your choice.')), h('p', {
+      style: {
+        fontSize: '15px'
+      }
+    }, 'Keep it private, donate it to education, or monetize eligible telemetry — with transparent provenance and an 85% contributor royalty pool. Prototype: financial and privacy values are configured simulations.'))), h('div', {
+      className: 'chips',
+      style: {
+        justifyContent: 'center'
+      }
     }, TABS.map(([id, label]) => h('button', {
       key: id,
-      onClick: () => setTab(id),
-      className: 'px-5 py-2 rounded-full text-sm font-semibold transition ' + (tab === id ? 'bg-indigo text-white' : 'bg-parchment text-stone-600 hover:bg-stone-200')
+      className: 'chip' + (tab === id ? ' active' : ''),
+      onClick: () => setTab(id)
     }, label))), tab === 'dashboard' && h(Dashboard, {
       balance,
       setTab,
@@ -1319,250 +1528,272 @@ CC.QUIZ = {
       togglePerm
     }), tab === 'trust' && h(TrustCenter, null));
   };
-
-  /* ---------------- Dashboard ---------------- */
   function Dashboard({
     balance,
     setTab,
     perms
   }) {
     const active = perms.filter(p => p.on).length;
-    const cards = [{
-      label: 'Your data',
-      value: '4 categories',
-      note: 'Learning activity, reading behavior, media interaction, anonymized telemetry',
-      tab: 'permissions'
-    }, {
-      label: 'Active permissions',
-      value: active + ' of ' + perms.length,
-      note: 'Granular controls — consequences explained before changes',
-      tab: 'permissions'
-    }, {
-      label: 'Data earnings',
-      value: '$' + balance.toFixed(2),
-      note: '85% contributor royalty pool (configured model)',
-      tab: 'earnings'
-    }, {
-      label: 'Research donations',
-      value: '31 contributions',
-      note: 'Educational, non-commercial by policy',
-      tab: 'earnings'
-    }];
+    const cards = [['Your data', '4 categories', 'Learning, reading, media, anonymized telemetry', 'permissions'], ['Active permissions', active + ' of ' + perms.length, 'Granular controls with explained consequences', 'permissions'], ['Data earnings', '$' + balance.toFixed(2), '85% contributor royalty pool (configured)', 'earnings'], ['Research donations', '31 contributions', 'Educational, non-commercial by policy', 'earnings']];
     return h('div', null, h('div', {
-      className: 'grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10'
-    }, cards.map(c => h('button', {
-      key: c.label,
-      onClick: () => setTab(c.tab),
-      className: 'text-left bg-white rounded-2xl border border-stone-200 p-6 shadow-sm hover:border-indigo transition'
-    }, h('p', {
-      className: 'text-xs font-bold uppercase tracking-wider text-stone-500 mb-2'
-    }, c.label), h('p', {
-      className: 'font-serif text-2xl font-bold mb-1'
-    }, c.value), h('p', {
-      className: 'text-xs text-stone-500'
-    }, c.note)))), h('div', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
-    }, h('h3', {
-      className: 'font-serif text-xl font-bold mb-1'
-    }, 'Personal data vault'), h('p', {
-      className: 'text-sm text-stone-500 mb-5'
-    }, 'Encryption status: ', h('span', {
-      className: 'font-semibold text-moss'
-    }, 'Protected (prototype indicator)'), ' — concept: AES-256-GCM with encryption before upload where the architecture permits. This UI claim depends on real implementation and is not a production guarantee.'), h('div', {
-      className: 'grid sm:grid-cols-3 gap-4 text-sm'
+      className: 'stat-grid mb'
+    }, cards.map(([label, value, note, tab]) => h('button', {
+      key: label,
+      className: 'stat',
+      onClick: () => setTab(tab)
+    }, h('b', null, value), h('span', null, label), h('p', {
+      className: 'muted small',
+      style: {
+        margin: '8px 0 0',
+        fontSize: '11px'
+      }
+    }, note)))), h('div', {
+      className: 'panel'
+    }, h('h2', null, 'Personal data vault'), h('p', {
+      className: 'small'
+    }, 'Encryption status: ', h('strong', {
+      style: {
+        color: '#166534'
+      }
+    }, 'Protected (prototype indicator)'), ' — concept: AES-256-GCM with encryption before upload where the architecture permits. This claim depends on real implementation and is not a production guarantee.'), h('div', {
+      className: 'stat-grid',
+      style: {
+        gridTemplateColumns: 'repeat(3,1fr)'
+      }
     }, ['Records', 'Permissions', 'Usage history'].map(s => h('div', {
       key: s,
-      className: 'rounded-xl bg-parchment/70 p-4'
-    }, h('p', {
-      className: 'font-semibold mb-1'
+      className: 'stat'
+    }, h('b', {
+      style: {
+        fontSize: '18px'
+      }
     }, s), h('p', {
-      className: 'text-stone-500'
-    }, 'Inspect and manage your ' + s.toLowerCase() + '. Withdrawal and deletion controls included.'))))));
+      className: 'muted small',
+      style: {
+        margin: '6px 0 0'
+      }
+    }, 'Inspect and manage. Withdrawal and deletion controls included.'))))));
   }
-
-  /* ---------------- Marketplace ---------------- */
   function Marketplace() {
     const [openDs, setOpenDs] = useState(null);
     return h('div', null, h('div', {
-      className: 'rounded-xl bg-indigo/5 border border-indigo/20 p-4 mb-8 text-sm text-indigo-900'
-    }, h('strong', null, 'Prototype marketplace. '), 'Datasets, prices and royalty percentages are a configured economic model — no real buyers or payouts exist yet. Provenance and fairness come first; no crypto aesthetics.'), h('div', {
-      className: 'grid md:grid-cols-2 gap-6'
+      className: 'notice indigo mb'
+    }, h('strong', null, 'Prototype marketplace. '), 'Datasets, prices and royalty percentages are a configured economic model — no real buyers or payouts exist yet. Provenance and fairness come first.'), h('div', {
+      className: 'cards c2'
     }, CC.DATASETS.map(ds => h('article', {
       key: ds.id,
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
+      className: 'panel',
+      style: {
+        cursor: 'default'
+      }
     }, h('div', {
-      className: 'flex items-center gap-2 mb-3 flex-wrap'
-    }, h(CC.Tag, null, ds.category), h(CC.Badge, {
-      status: ds.status
+      className: 'flex mb'
+    }, h(CC.Tag, null, ds.category), h(CC.Status, {
+      s: ds.status
     })), h('h3', {
-      className: 'font-serif text-xl font-bold mb-2'
+      style: {
+        margin: '0 0 8px'
+      }
     }, ds.name), h('p', {
-      className: 'text-sm text-stone-600 mb-4'
+      className: 'muted small mb'
     }, ds.description), h('dl', {
-      className: 'grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4'
-    }, row('Contributors', ds.contributors.toLocaleString()), row('Records', ds.records), row('Collection period', ds.period), row('Privacy mechanism', ds.privacyMechanism), row('Privacy budget', ds.privacyBudget), row('Re-identification risk', ds.reidentRisk), row('Contributor share', ds.royalty + '%'), row('Buyer price', ds.price)), h('div', {
-      className: 'flex gap-3'
+      style: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '6px 20px',
+        fontSize: '13px',
+        margin: '0 0 14px'
+      }
+    }, [['Contributors', ds.contributors.toLocaleString()], ['Records', ds.records], ['Period', ds.period], ['Privacy mechanism', ds.privacyMechanism], ['Privacy budget', ds.privacyBudget], ['Re-identification risk', ds.reidentRisk], ['Contributor share', ds.royalty + '%'], ['Buyer price', ds.price]].map(([k, v]) => h('div', {
+      key: k,
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '10px'
+      }
+    }, h('dt', {
+      className: 'muted'
+    }, k), h('dd', {
+      style: {
+        margin: 0,
+        fontWeight: 600,
+        textAlign: 'right'
+      }
+    }, v)))), h('div', {
+      className: 'flex between'
     }, h('button', {
-      onClick: () => setOpenDs(openDs === ds.id ? null : ds.id),
-      className: 'text-indigo font-semibold text-sm hover:underline'
+      className: 'ai',
+      onClick: () => setOpenDs(openDs === ds.id ? null : ds.id)
     }, openDs === ds.id ? 'Hide provenance' : 'View provenance'), h('span', {
-      className: 'text-xs text-stone-400 self-center'
+      className: 'muted small'
     }, ds.queries + ' queries this month')), openDs === ds.id && h('div', {
-      className: 'mt-4 border-t border-stone-200 pt-4'
-    }, h('h4', {
-      className: 'text-xs font-bold uppercase tracking-wider text-stone-500 mb-3'
+      className: 'mt',
+      style: {
+        borderTop: '1px solid var(--line)',
+        paddingTop: '14px'
+      }
+    }, h('p', {
+      className: 'muted small',
+      style: {
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        letterSpacing: '.06em'
+      }
     }, 'Dataset provenance'), h('ol', {
-      className: 'space-y-2 text-sm text-stone-600'
-    }, h('li', null, h('strong', null, 'Origin: '), 'Opt-in CultureCommons users, ' + ds.contributors.toLocaleString() + ' contributors.'), h('li', null, h('strong', null, 'Collection method: '), 'Consent-gated telemetry and survey interactions.'), h('li', null, h('strong', null, 'Transformation: '), 'Raw events cleaned, anonymized, then aggregated.'), h('li', null, h('strong', null, 'Privacy: '), ds.privacyMechanism + ' — ' + ds.privacyBudget + '.'), h('li', null, h('strong', null, 'Licensing: '), 'Research use; redistribution prohibited; no re-identification attempts.'), h('li', null, h('strong', null, 'Revenue distribution: '), ds.royalty + '% contributor pool / ' + (100 - ds.royalty) + '% platform allocation (configured).')))))));
-    function row(k, v) {
-      return [h('dt', {
-        key: k + '-k',
-        className: 'text-stone-500'
-      }, k), h('dd', {
-        key: k + '-v',
-        className: 'font-medium'
-      }, v)];
-    }
+      style: {
+        paddingLeft: '18px',
+        fontSize: '13px',
+        lineHeight: 1.7
+      }
+    }, h('li', null, h('strong', null, 'Origin: '), 'Opt-in CultureCommons users, ' + ds.contributors.toLocaleString() + ' contributors.'), h('li', null, h('strong', null, 'Collection method: '), 'Consent-gated telemetry and survey interactions.'), h('li', null, h('strong', null, 'Transformation: '), 'Raw events cleaned, anonymized, then aggregated.'), h('li', null, h('strong', null, 'Privacy: '), ds.privacyMechanism + ' — ' + ds.privacyBudget + '.'), h('li', null, h('strong', null, 'Licensing: '), 'Research use; redistribution prohibited; no re-identification attempts.'), h('li', null, h('strong', null, 'Revenue: '), ds.royalty + '% contributor pool / ' + (100 - ds.royalty) + '% platform (configured).')))))));
   }
-
-  /* ---------------- Earnings ---------------- */
   function Earnings({
     balance
   }) {
     return h('div', {
-      className: 'max-w-3xl mx-auto'
+      className: 'page narrow',
+      style: {
+        padding: 0
+      }
     }, h('div', {
-      className: 'bg-gradient-to-br from-indigo to-stone-900 text-paper rounded-2xl p-8 mb-8 text-center'
+      className: 'player mb',
+      style: {
+        textAlign: 'center',
+        background: 'linear-gradient(135deg,#3730a3,#171816)'
+      }
     }, h('p', {
-      className: 'text-indigo-200 text-xs font-bold uppercase tracking-wider mb-2'
+      className: 'eyebrow',
+      style: {
+        color: '#c7d2fe',
+        margin: 0
+      }
     }, 'Your data earnings'), h('p', {
-      className: 'font-serif text-5xl font-bold mb-2'
+      style: {
+        font: '700 52px Georgia',
+        margin: '8px 0'
+      }
     }, '$' + balance.toFixed(2)), h('p', {
-      className: 'text-sm text-indigo-200'
-    }, 'Royalty split: 85% contributor pool · 15% platform allocation (configured percentages, simulated balances)')), h('div', {
-      className: 'bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden'
+      className: 'small',
+      style: {
+        color: '#c7d2fe',
+        margin: 0
+      }
+    }, 'Royalty split: 85% contributor pool · 15% platform allocation (configured, simulated)')), h('div', {
+      className: 'panel',
+      style: {
+        padding: 0,
+        overflow: 'hidden'
+      }
     }, h('table', {
-      className: 'w-full text-sm'
-    }, h('thead', null, h('tr', {
-      className: 'bg-parchment/70 text-left text-xs uppercase tracking-wider text-stone-500'
-    }, h('th', {
-      className: 'px-4 py-3'
-    }, 'Date'), h('th', {
-      className: 'px-4 py-3'
-    }, 'Dataset'), h('th', {
-      className: 'px-4 py-3 text-right'
+      className: 'ledger'
+    }, h('thead', null, h('tr', null, h('th', null, 'Date'), h('th', null, 'Dataset'), h('th', {
+      className: 'num'
     }, 'Uses'), h('th', {
-      className: 'px-4 py-3 text-right'
+      className: 'num'
     }, 'Change'), h('th', {
-      className: 'px-4 py-3 text-right'
+      className: 'num'
     }, 'Status'))), h('tbody', null, CC.EARNINGS_LEDGER.map((r, i) => h('tr', {
-      key: i,
-      className: 'border-t border-stone-100'
+      key: i
     }, h('td', {
-      className: 'px-4 py-3 text-stone-500'
+      className: 'muted'
     }, r.date), h('td', {
-      className: 'px-4 py-3 font-medium'
+      style: {
+        fontWeight: 600
+      }
     }, r.dataset), h('td', {
-      className: 'px-4 py-3 text-right'
+      className: 'num'
     }, r.uses), h('td', {
-      className: 'px-4 py-3 text-right font-semibold ' + (r.change > 0 ? 'text-moss' : 'text-stone-400')
+      className: 'num',
+      style: {
+        fontWeight: 700,
+        color: r.change > 0 ? '#166534' : '#999'
+      }
     }, r.change > 0 ? '+$' + r.change.toFixed(2) : '—'), h('td', {
-      className: 'px-4 py-3 text-right'
+      className: 'num'
     }, h('span', {
-      className: 'text-xs font-bold uppercase tracking-wider ' + (r.status === 'Available' ? 'text-moss' : r.status === 'Paid' ? 'text-sky-700' : 'text-stone-400')
+      className: 'tag ' + (r.status === 'Available' ? 'moss' : r.status === 'Paid' ? 'sky' : '')
     }, r.status))))))), h('p', {
-      className: 'text-xs text-stone-400 mt-4 text-center'
+      className: 'muted small mt',
+      style: {
+        textAlign: 'center'
+      }
     }, 'Ledger rows are simulated to demonstrate the intended transparency model.'));
   }
-
-  /* ---------------- Permissions ---------------- */
   function Permissions({
     perms,
     togglePerm
   }) {
     return h('div', {
-      className: 'max-w-2xl mx-auto'
+      className: 'page narrow',
+      style: {
+        padding: 0
+      }
     }, h('div', {
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
-    }, h('h3', {
-      className: 'font-serif text-xl font-bold mb-1'
-    }, 'Data permission center'), h('p', {
-      className: 'text-sm text-stone-500 mb-6'
-    }, 'Granular controls. Each switch explains its purpose before you change it; choices are saved to your workspace.'), h('ul', {
-      className: 'divide-y divide-stone-200'
-    }, perms.map(p => h('li', {
+      className: 'panel mb'
+    }, h('h2', null, 'Data permission center'), h('p', {
+      className: 'muted small mb'
+    }, 'Each switch explains its purpose before you change it; choices are saved to your workspace.'), perms.map(p => h('div', {
       key: p.id,
-      className: 'py-4 flex items-center justify-between gap-6'
+      className: 'flex between',
+      style: {
+        padding: '14px 0',
+        borderTop: '1px solid #f0eee8'
+      }
     }, h('div', null, h('p', {
-      className: 'font-semibold'
+      style: {
+        margin: 0,
+        fontWeight: 600
+      }
     }, p.label), h('p', {
-      className: 'text-sm text-stone-500'
+      className: 'muted small',
+      style: {
+        margin: '4px 0 0'
+      }
     }, p.desc)), h('button', {
+      className: 'switch ' + (p.on ? 'on' : 'off'),
       role: 'switch',
       'aria-checked': p.on,
       onClick: () => togglePerm(p.id),
-      className: 'relative h-7 w-12 rounded-full transition shrink-0 ' + (p.on ? 'bg-moss' : 'bg-stone-300')
-    }, h('span', {
-      className: 'absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ' + (p.on ? 'left-[1.4rem]' : 'left-0.5')
-    })))))), h('div', {
-      className: 'mt-6 rounded-xl bg-parchment/70 p-5 text-sm text-stone-600'
-    }, h('strong', null, 'Three standing choices: '), 'keep data Private (nothing leaves your account), Donate to educational research (non-commercial by policy), or Monetize eligible telemetry (joins the 85% royalty pool). You can change these anytime here.'));
+      'aria-label': p.label
+    }, h('i', null))))), h('div', {
+      className: 'notice green'
+    }, h('strong', null, 'Three standing choices: '), 'keep data Private, Donate to educational research, or Monetize eligible telemetry (85% royalty pool). Change anytime here.'));
   }
-
-  /* ---------------- Trust center ---------------- */
   function TrustCenter() {
-    const rows = [{
-      name: 'zk-SNARK proof of contribution',
-      status: 'Planned',
-      note: 'Not implemented. Will ship only with published verification — a proof token would let you verify a claim without exposing underlying private information.'
-    }, {
-      name: 'Differential privacy on datasets',
-      status: 'Planned',
-      note: 'Budget values shown in the marketplace (ε targets) are configured goals, not measured guarantees.'
-    }, {
-      name: 'Re-identification risk metrics',
-      status: 'Planned',
-      note: 'Indicators are estimates in this prototype, not audited measurements.'
-    }, {
-      name: 'Client-side encryption (AES-256-GCM)',
-      status: 'Planned',
-      note: 'The vault UI shows the concept; no real encryption is applied to prototype data.'
-    }, {
-      name: 'AI methodology',
-      status: 'Documented',
-      note: 'AI is an enabling layer: synthesizer output is always labeled, paired with sources, and carries an uncertainty signal.'
-    }, {
-      name: 'Source methodology',
-      status: 'Documented',
-      note: 'Evidence statuses distinguish primary, institutional, academic, community and AI-synthesized material.'
-    }];
+    const rows = [['zk-SNARK proof of contribution', 'Planned', 'Not implemented. Would let you verify a claim without exposing underlying private information.'], ['Differential privacy on datasets', 'Planned', 'Marketplace ε values are configured targets, not measured guarantees.'], ['Re-identification risk metrics', 'Planned', 'Indicators are estimates in this prototype, not audited measurements.'], ['Client-side encryption (AES-256-GCM)', 'Planned', 'The vault shows the concept; no real encryption is applied to prototype data.'], ['AI methodology', 'Documented', 'Synthesizer output is always labeled, paired with sources, and carries an uncertainty signal.'], ['Source methodology', 'Documented', 'Evidence statuses distinguish primary, institutional, academic, community and AI-synthesized material.']];
     return h('div', {
-      className: 'max-w-3xl mx-auto'
-    }, h('div', {
-      className: 'bg-ink text-paper rounded-2xl p-8'
-    }, h('h3', {
-      className: 'font-serif text-2xl font-bold mb-2'
+      className: 'player'
+    }, h('h2', {
+      style: {
+        marginTop: 0
+      }
     }, 'Trust & Transparency Center'), h('p', {
-      className: 'text-sm text-stone-400 mb-6'
-    }, 'This platform makes unusually strong trust claims — so every claim carries a status. Decorative numbers are never presented as cryptographic guarantees.'), h('ul', {
-      className: 'space-y-4'
-    }, rows.map(r => h('li', {
-      key: r.name,
-      className: 'border-b border-stone-700 pb-4'
+      className: 'small',
+      style: {
+        color: '#aaa'
+      }
+    }, 'This platform makes unusually strong trust claims — so every claim carries a status. Decorative numbers are never presented as cryptographic guarantees.'), rows.map(([name, status, note]) => h('div', {
+      key: name,
+      style: {
+        borderTop: '1px solid #333230',
+        padding: '14px 0'
+      }
     }, h('div', {
-      className: 'flex items-center gap-3 flex-wrap mb-1'
-    }, h('span', {
-      className: 'font-semibold'
-    }, r.name), h('span', {
-      className: 'text-[0.65rem] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ' + (r.status === 'Documented' ? 'bg-emerald-900 text-emerald-200' : 'bg-amber-900/60 text-amber-200')
-    }, r.status)), h('p', {
-      className: 'text-sm text-stone-400'
-    }, r.note))))));
+      className: 'flex mb'
+    }, h('strong', null, name), h('span', {
+      className: 'tag ' + (status === 'Documented' ? 'moss' : 'amber')
+    }, status)), h('p', {
+      className: 'small',
+      style: {
+        color: '#aaa',
+        margin: 0
+      }
+    }, note))));
   }
 })();
 /* ===== 06-explore-commons.jsx ===== */
 /* ================================================================
-   Explore (search/timeline/map) + Community Commons — step 6
+   Explore + Community Commons (new design)
    ================================================================ */
 (function () {
   const {
@@ -1570,79 +1801,92 @@ CC.QUIZ = {
     useMemo
   } = React;
   const h = React.createElement;
-
-  /* --------------------------- EXPLORE --------------------------- */
   CC.ExplorePage = function ExplorePage({
-    go
+    go,
+    preset
   }) {
-    const [q, setQ] = useState('');
+    const [q, setQ] = useState(preset && preset.q || '');
     const [region, setRegion] = useState('All');
     const regions = ['All'].concat(Array.from(new Set(CC.DOSSIERS.map(d => d.region))));
     const results = useMemo(() => CC.DOSSIERS.filter(d => (region === 'All' || d.region === region) && (d.title + ' ' + d.overview + ' ' + d.category + ' ' + d.materials).toLowerCase().includes(q.toLowerCase())), [q, region]);
     return h('div', {
-      className: 'max-w-5xl mx-auto px-6 py-12'
-    }, h(CC.Section, {
-      eyebrow: 'Explore',
-      title: 'Discover the commons',
-      center: true
-    }, 'Search across dossiers, browse the timeline, and explore by region. Discovery feels like an archive — calm, sourced, reviewable.'), h('div', {
-      className: 'flex flex-col md:flex-row gap-4 mb-12'
-    }, h('input', {
+      className: 'page'
+    }, h(CC.SectionTitle, null, 'Explore'), h('div', {
+      className: 'search mb',
+      style: {
+        maxWidth: '700px',
+        margin: '0 0 20px'
+      }
+    }, h('span', {
+      'aria-hidden': 'true'
+    }, '⌕'), h('input', {
       value: q,
       onChange: e => setQ(e.target.value),
       placeholder: 'Try "ancient methods of producing blue pigments"…',
-      'aria-label': 'Search the collection',
-      className: 'flex-1 rounded-full border border-stone-300 px-5 py-2.5 focus:outline-none focus:ring-2 focus:ring-ochre'
-    }), h('select', {
-      value: region,
-      onChange: e => setRegion(e.target.value),
-      'aria-label': 'Filter by region',
-      className: 'rounded-full border border-stone-300 px-5 py-2.5 bg-white'
-    }, regions.map(r => h('option', {
-      key: r
-    }, r)))), h('h3', {
-      className: 'font-serif text-xl font-bold mb-6'
-    }, 'Timeline explorer'), h('div', {
-      className: 'flex gap-2 flex-wrap mb-6'
-    }, ['All'].concat(Array.from(new Set(CC.TIMELINE.map(t => t.region)))).map(r => h('button', {
+      'aria-label': 'Search'
+    })), h('div', {
+      className: 'chips'
+    }, regions.map(r => h('button', {
       key: r,
-      onClick: () => setRegion(r === 'All' ? 'All' : r),
-      className: 'px-3 py-1.5 rounded-full text-xs font-bold transition ' + (region === r ? 'bg-ink text-paper' : 'bg-parchment text-stone-600')
-    }, r))), h('ol', {
-      className: 'relative border-l-2 border-stone-300 ml-3 mb-14 space-y-8'
+      className: 'chip' + (region === r ? ' active' : ''),
+      onClick: () => setRegion(r)
+    }, r))), h('h3', {
+      className: 'serif',
+      style: {
+        fontSize: '22px'
+      }
+    }, 'Timeline explorer'), h('ol', {
+      className: 'timeline mb'
     }, CC.TIMELINE.filter(t => region === 'All' || t.region === region).map((t, i) => h('li', {
-      key: i,
-      className: 'ml-6'
-    }, h('span', {
-      className: 'absolute -left-2 mt-1 h-4 w-4 rounded-full bg-ochre border-2 border-paper',
-      'aria-hidden': 'true'
-    }), h('p', {
-      className: 'text-xs text-stone-500'
+      key: i
+    }, h('p', {
+      className: 'muted small',
+      style: {
+        margin: 0
+      }
     }, t.year), h('p', {
-      className: 'font-medium'
+      style: {
+        margin: '2px 0',
+        fontWeight: 600
+      }
     }, t.label), h('button', {
+      className: 'ai small',
       onClick: () => go('dossier', {
         id: t.dossier
-      }),
-      className: 'text-ochre text-sm font-semibold hover:underline'
+      })
     }, 'Open connected dossier →')))), h('h3', {
-      className: 'font-serif text-xl font-bold mb-2'
+      className: 'serif',
+      style: {
+        fontSize: '22px'
+      }
     }, 'Cultural map ', h(CC.Tag, {
-      color: 'bg-amber-100 text-amber-800'
-    }, 'Planned: interactive map')), h('p', {
-      className: 'text-sm text-stone-500 mb-6'
-    }, 'Regional cards stand in for the interactive map in this prototype; clicking a card opens connected research.'), h('div', {
-      className: 'grid sm:grid-cols-2 lg:grid-cols-3 gap-6'
-    }, results.map(d => h(CC.DossierCard, {
+      color: 'amber'
+    }, 'Planned: interactive')), h('p', {
+      className: 'muted small mb'
+    }, 'Regional cards stand in for the interactive map in this prototype; each card opens connected research.'), h('div', {
+      className: 'region-grid mb'
+    }, CC.REGIONS.map(([name, img]) => h('button', {
+      key: name,
+      className: 'region',
+      onClick: () => setRegion(regions.includes(name) || name === 'All' ? name : 'All')
+    }, h('img', {
+      src: img,
+      alt: '',
+      loading: 'lazy'
+    }), h('span', null, name)))), h('div', {
+      className: 'cards c3'
+    }, results.map((d, i) => h(CC.DossierCard, {
       key: d.id,
       d,
-      go
-    }))), results.length === 0 && h('p', {
-      className: 'text-stone-500'
-    }, 'No dossiers match your search in the sample corpus.'));
+      go,
+      i
+    }))), results.length === 0 && h(CC.EmptyState, {
+      title: 'No matching dossiers',
+      body: 'The sample corpus holds five demo dossiers. Try a broader search, or contribute your own research in the Commons.',
+      cta: 'Visit the Commons',
+      onAction: () => go('commons')
+    }));
   };
-
-  /* --------------------------- COMMONS --------------------------- */
   CC.CommonsPage = function CommonsPage({
     go
   }) {
@@ -1686,7 +1930,7 @@ CC.QUIZ = {
       },
       date: '2026-07-30'
     }]));
-    const [draft, setDraft] = useState(null);
+    const [draft, setDraft] = useState(false);
     const [reviewFor, setReviewFor] = useState(null);
     function publish(e) {
       e.preventDefault();
@@ -1704,7 +1948,7 @@ CC.QUIZ = {
       const next = contributions.concat([item]);
       setContributions(next);
       CC.store.set('contributions', next);
-      setDraft(null);
+      setDraft(false);
     }
     function submitReview(e) {
       e.preventDefault();
@@ -1724,113 +1968,138 @@ CC.QUIZ = {
       setReviewFor(null);
     }
     return h('div', {
-      className: 'max-w-4xl mx-auto px-6 py-12'
-    }, h(CC.Section, {
-      eyebrow: 'Community Commons',
-      title: 'The public knowledge layer',
-      center: true
-    }, 'Members publish dossiers, collections and curated sources. Quality is driven by evidence and review — never by likes.'), h('div', {
-      className: 'flex justify-center mb-8'
+      className: 'page narrow'
+    }, h(CC.SectionTitle, null, 'Community Commons'), h('p', {
+      className: 'muted mb'
+    }, 'The public knowledge layer. Members publish dossiers, collections and curated sources. Quality is driven by evidence and review — never by likes.'), h('div', {
+      className: 'mb'
     }, h('button', {
-      onClick: () => setDraft(true),
-      className: 'bg-ochre hover:bg-ochrelite text-white font-semibold px-6 py-2.5 rounded-full transition'
+      className: 'btn orangebtn',
+      onClick: () => setDraft(true)
     }, 'Contribute a dossier')), draft && h('form', {
       onSubmit: publish,
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm mb-10'
+      className: 'panel mb'
     }, h('h3', {
-      className: 'font-serif text-xl font-bold mb-4'
+      style: {
+        marginTop: 0
+      }
     }, 'New contribution'), h('div', {
-      className: 'grid sm:grid-cols-3 gap-4 mb-4'
+      className: 'flex mb'
     }, h('input', {
+      className: 'input',
       name: 'title',
       required: true,
       placeholder: 'Dossier title',
-      className: 'rounded-full border border-stone-300 px-4 py-2 text-sm sm:col-span-2'
+      style: {
+        flex: 2
+      }
     }), h('input', {
+      className: 'input',
       name: 'topic',
       required: true,
       placeholder: 'Topic',
-      className: 'rounded-full border border-stone-300 px-4 py-2 text-sm'
-    })), h('div', {
-      className: 'flex items-center gap-4 mb-4'
-    }, h('label', {
-      className: 'text-sm text-stone-600'
-    }, 'Sources cited: ', h('input', {
+      style: {
+        flex: 1
+      }
+    }), h('label', {
+      className: 'small muted'
+    }, 'Sources ', h('input', {
+      className: 'input',
       name: 'sources',
       type: 'number',
       min: '1',
       defaultValue: '3',
-      className: 'w-16 rounded-lg border border-stone-300 px-2 py-1 ml-2'
+      style: {
+        width: '70px',
+        marginLeft: '6px'
+      }
     }))), h('p', {
-      className: 'text-xs text-stone-400 mb-4'
+      className: 'muted small'
     }, 'Flow: Create → Add sources → Review → Publish → Community feedback. New contributions start as "Submitted".'), h('div', {
-      className: 'flex gap-3'
+      className: 'flex'
     }, h('button', {
       type: 'submit',
-      className: 'bg-ochre text-white font-semibold px-5 py-2 rounded-full text-sm'
+      className: 'btn orangebtn small'
     }, 'Submit for review'), h('button', {
       type: 'button',
-      onClick: () => setDraft(null),
-      className: 'text-stone-500 text-sm'
-    }, 'Cancel'))), h('ul', {
-      className: 'space-y-4'
-    }, contributions.map(c => h('li', {
+      className: 'btn small',
+      onClick: () => setDraft(false)
+    }, 'Cancel'))), contributions.map(c => h('article', {
       key: c.id,
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
+      className: 'panel mb'
     }, h('div', {
-      className: 'flex items-start justify-between gap-4 flex-wrap'
-    }, h('div', null, h('div', {
-      className: 'flex items-center gap-2 mb-2 flex-wrap'
-    }, h(CC.Tag, null, c.topic), h(CC.Badge, {
-      status: c.status
-    })), h('h3', {
-      className: 'font-serif text-lg font-bold'
+      className: 'flex between mb'
+    }, h('div', {
+      className: 'flex'
+    }, h(CC.Tag, null, c.topic), h(CC.Status, {
+      s: c.status
+    })), c.author !== 'You' && h('button', {
+      className: 'ai small',
+      onClick: () => setReviewFor(reviewFor === c.id ? null : c.id)
+    }, 'Review')), h('h3', {
+      style: {
+        margin: '0 0 6px'
+      }
     }, c.title), h('p', {
-      className: 'text-sm text-stone-500'
-    }, 'By ' + c.author + ' · ' + c.date + ' · ' + c.sources + ' sources')), c.author !== 'You' && h('button', {
-      onClick: () => setReviewFor(c.id),
-      className: 'text-ochre font-semibold text-sm hover:underline'
-    }, 'Review')), c.reviews && h('div', {
-      className: 'mt-4 flex gap-2 flex-wrap'
-    }, [['Accuracy', c.reviews.accuracy], ['Sources', c.reviews.sources], ['Clarity', c.reviews.clarity], ['Completeness', c.reviews.completeness], ['Context', c.reviews.context]].map(([k, v]) => h('span', {
+      className: 'muted small',
+      style: {
+        margin: 0
+      }
+    }, 'By ' + c.author + ' · ' + c.date + ' · ' + c.sources + ' sources'), c.reviews && h('div', {
+      className: 'flex mt'
+    }, [['Accuracy', c.reviews.accuracy], ['Sources', c.reviews.sources], ['Clarity', c.reviews.clarity], ['Complete', c.reviews.completeness], ['Context', c.reviews.context]].map(([k, v]) => h('span', {
       key: k,
-      className: 'text-xs bg-parchment rounded-full px-3 py-1.5 text-stone-600'
+      className: 'tag'
     }, k + ' ', h('strong', null, v + '/5')))), reviewFor === c.id && h('form', {
       onSubmit: submitReview,
-      className: 'mt-4 border-t border-stone-200 pt-4'
+      className: 'mt',
+      style: {
+        borderTop: '1px solid var(--line)',
+        paddingTop: '14px'
+      }
     }, h('p', {
-      className: 'text-xs font-bold uppercase tracking-wider text-stone-500 mb-3'
+      className: 'muted small',
+      style: {
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        letterSpacing: '.06em'
+      }
     }, 'Peer review (1–5 each)'), h('div', {
-      className: 'grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4'
+      className: 'flex mb'
     }, [['accuracy', 'Accuracy'], ['sources_q', 'Sources'], ['clarity', 'Clarity'], ['completeness', 'Complete'], ['context', 'Context']].map(([name, label]) => h('label', {
       key: name,
-      className: 'text-xs text-stone-600'
+      className: 'small muted'
     }, label, h('input', {
+      className: 'input',
       name,
       type: 'number',
       min: '1',
       max: '5',
       defaultValue: '4',
       required: true,
-      className: 'mt-1 w-full rounded-lg border border-stone-300 px-2 py-1'
+      style: {
+        width: '60px',
+        marginLeft: '6px',
+        padding: '6px 10px'
+      }
     })))), h('div', {
-      className: 'flex gap-3'
+      className: 'flex'
     }, h('button', {
       type: 'submit',
-      className: 'bg-ochre text-white font-semibold px-5 py-2 rounded-full text-sm'
+      className: 'btn orangebtn small'
     }, 'Submit review'), h('button', {
       type: 'button',
-      onClick: () => setReviewFor(null),
-      className: 'text-stone-500 text-sm'
-    }, 'Cancel')))))), h('div', {
-      className: 'mt-10 rounded-xl bg-parchment/70 p-5 text-sm text-stone-600'
-    }, h('strong', null, 'Reputation: '), 'contributors build standing through high-quality, source-backed work — Contributor → Trusted → Verified → Institutional. No meaningless gamification, no popularity contests.'));
+      className: 'btn small',
+      onClick: () => setReviewFor(null)
+    }, 'Cancel'))))), h('div', {
+      className: 'notice green'
+    }, h('strong', null, 'Reputation: '), 'contributors build standing through high-quality, source-backed work — Contributor → Trusted → Verified → Institutional. No popularity contests.'));
   };
 })();
 /* ===== 08-ux-spec.jsx ===== */
 /* ================================================================
-   Spec sections 65-100 additions: onboarding, global search (Ctrl+K),
-   Compare mode, empty states, loading labels, Research Companion.
+   Spec 65-100 additions (new design): companion, onboarding,
+   global search, compare, empty states, loading notes
    ================================================================ */
 (function () {
   const {
@@ -1839,14 +2108,11 @@ CC.QUIZ = {
     useMemo
   } = React;
   const h = React.createElement;
-
-  /* ---------------- Research Companion (secondary brand layer) ---------------- */
   CC.Companion = function Companion({
     message
   }) {
-    /* Abstract archival-geometric mark: layered diamond + circle, no robot clichés */
     return h('div', {
-      className: 'flex items-center gap-4',
+      className: 'flex',
       role: 'img',
       'aria-label': 'Research Companion'
     }, h('svg', {
@@ -1862,7 +2128,7 @@ CC.QUIZ = {
       height: '28',
       rx: '3',
       transform: 'rotate(45 22 22)',
-      fill: '#b45309',
+      fill: '#d86d16',
       opacity: '0.15'
     }), h('rect', {
       x: '12',
@@ -1871,24 +2137,26 @@ CC.QUIZ = {
       height: '20',
       rx: '2',
       transform: 'rotate(45 22 22)',
-      stroke: '#b45309',
+      stroke: '#d86d16',
       strokeWidth: '1.5'
     }), h('circle', {
       cx: '22',
       cy: '22',
       r: '4',
-      fill: '#1a1712'
+      fill: '#11130f'
     }), h('path', {
       d: 'M22 4v6M22 34v6M4 22h6M34 22h6',
-      stroke: '#b45309',
+      stroke: '#d86d16',
       strokeWidth: '1.5',
       strokeLinecap: 'round'
     })), message ? h('p', {
-      className: 'text-sm text-stone-500 italic'
+      className: 'muted small',
+      style: {
+        fontStyle: 'italic',
+        margin: 0
+      }
     }, message) : null);
   };
-
-  /* ---------------- Onboarding (section 79-80) ---------------- */
   CC.Onboarding = function Onboarding({
     onDone
   }) {
@@ -1905,54 +2173,66 @@ CC.QUIZ = {
       onDone();
     }
     return h('div', {
-      className: 'fixed inset-0 z-50 bg-ink/60 flex items-center justify-center p-4',
+      className: 'overlay',
       role: 'dialog',
       'aria-modal': 'true'
     }, h('div', {
-      className: 'bg-paper rounded-3xl max-w-lg w-full p-8 shadow-xl'
+      className: 'sheet'
     }, h(CC.Companion, {
       message: step === 0 ? 'Welcome. One quick question to make this useful — or skip and explore right away.' : 'Good. Anything in particular you care about?'
     }), step === 0 ? h('div', {
-      className: 'mt-6'
-    }, h('h2', {
-      className: 'font-serif text-2xl font-bold mb-4'
-    }, 'What brings you here?'), h('div', {
-      className: 'grid grid-cols-2 gap-2 mb-6'
+      className: 'mt'
+    }, h('h2', null, 'What brings you here?'), h('div', {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '8px'
+      },
+      className: 'mb'
     }, purposes.map(p => h('button', {
       key: p,
-      onClick: () => setPurpose(p),
-      className: 'rounded-xl border px-4 py-3 text-sm font-medium transition ' + (purpose === p ? 'border-ochre bg-ochre/10 text-ochre' : 'border-stone-200 hover:border-ochre')
+      className: 'chip',
+      style: {
+        textAlign: 'center',
+        whiteSpace: 'normal'
+      },
+      style: {
+        textAlign: 'center',
+        whiteSpace: 'normal',
+        background: purpose === p ? '#171816' : '#ebe9e3',
+        color: purpose === p ? '#fff' : '#34332f'
+      },
+      onClick: () => setPurpose(p)
     }, p))), h('div', {
-      className: 'flex justify-between items-center'
+      className: 'flex between'
     }, h('button', {
-      onClick: finish,
-      className: 'text-sm text-stone-500 hover:text-ochre'
+      className: 'ai small',
+      onClick: finish
     }, 'Skip — just let me explore'), h('button', {
-      onClick: () => setStep(1),
+      className: 'btn orangebtn small',
       disabled: !purpose,
-      className: 'bg-ochre text-white font-semibold px-6 py-2.5 rounded-full text-sm disabled:opacity-40'
+      onClick: () => setStep(1)
     }, 'Continue'))) : h('div', {
-      className: 'mt-6'
-    }, h('h2', {
-      className: 'font-serif text-2xl font-bold mb-4'
-    }, 'What are you interested in?'), h('div', {
-      className: 'flex flex-wrap gap-2 mb-6'
+      className: 'mt'
+    }, h('h2', null, 'What are you interested in?'), h('div', {
+      className: 'chips',
+      style: {
+        padding: 0
+      }
     }, interests.map(i => h('button', {
       key: i,
-      onClick: () => setPicked(s => s.includes(i) ? s.filter(x => x !== i) : s.concat([i])),
-      className: 'rounded-full px-4 py-2 text-sm font-medium transition ' + (picked.includes(i) ? 'bg-ochre text-white' : 'bg-parchment text-stone-600 hover:bg-stone-200')
+      className: 'chip' + (picked.includes(i) ? ' active' : ''),
+      onClick: () => setPicked(s => s.includes(i) ? s.filter(x => x !== i) : s.concat([i]))
     }, i))), h('div', {
-      className: 'flex justify-between items-center'
+      className: 'flex between mt'
     }, h('button', {
-      onClick: finish,
-      className: 'text-sm text-stone-500 hover:text-ochre'
+      className: 'ai small',
+      onClick: finish
     }, 'Skip'), h('button', {
-      onClick: finish,
-      className: 'bg-ochre text-white font-semibold px-6 py-2.5 rounded-full text-sm'
+      className: 'btn orangebtn small',
+      onClick: finish
     }, 'Start researching')))));
   };
-
-  /* ---------------- Global search overlay (Ctrl/Cmd+K, sections 82-84) ---------------- */
   CC.GlobalSearch = function GlobalSearch({
     open,
     onClose,
@@ -1960,11 +2240,10 @@ CC.QUIZ = {
   }) {
     const [q, setQ] = useState('');
     useEffect(() => {
+      if (!open) setQ('');
+    }, [open]);
+    useEffect(() => {
       function onKey(e) {
-        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-          e.preventDefault();
-          onClose === null ? null : open ? onClose() : null;
-        }
         if (e.key === 'Escape' && open) onClose();
       }
       window.addEventListener('keydown', onKey);
@@ -1985,62 +2264,73 @@ CC.QUIZ = {
     }, [q]);
     if (!open) return null;
     return h('div', {
-      className: 'fixed inset-0 z-50 bg-ink/60 flex items-start justify-center pt-24 p-4',
+      className: 'overlay',
       onClick: onClose,
       role: 'dialog',
       'aria-modal': 'true',
       'aria-label': 'Global search'
     }, h('div', {
-      className: 'bg-paper rounded-2xl max-w-xl w-full shadow-xl overflow-hidden',
+      className: 'sheet search-sheet',
       onClick: e => e.stopPropagation()
     }, h('div', {
-      className: 'flex items-center gap-3 px-5 py-4 border-b border-stone-200'
+      className: 'flex',
+      style: {
+        padding: '0 18px',
+        borderBottom: '1px solid var(--line)'
+      }
     }, h('span', {
       'aria-hidden': 'true',
-      className: 'text-stone-400'
+      className: 'muted'
     }, '⌕'), h('input', {
+      className: 'gs',
       autoFocus: true,
       value: q,
       onChange: e => setQ(e.target.value),
-      placeholder: 'Search dossiers, datasets, pages… (Esc to close)',
-      className: 'flex-1 bg-transparent focus:outline-none text-lg',
+      placeholder: 'Search dossiers, datasets, pages…',
       'aria-label': 'Search everything'
-    }), h('kbd', {
-      className: 'text-xs bg-parchment rounded px-2 py-1 text-stone-500'
-    }, 'Esc')), h('div', {
-      className: 'max-h-80 overflow-y-auto p-3'
+    }), h('kbd', null, 'Esc')), h('div', {
+      style: {
+        maxHeight: '320px',
+        overflowY: 'auto',
+        padding: '8px'
+      }
     }, !q.trim() && h('p', {
-      className: 'text-sm text-stone-400 p-3'
-    }, 'Try "Maya astronomy", "Renaissance pigments", "permissions"…'), results.dossiers.map(d => resultRow('Dossier', d.title, d.category, () => {
+      className: 'muted small',
+      style: {
+        padding: '10px'
+      }
+    }, 'Try "Maya astronomy", "Renaissance pigments", "permissions"…'), results.dossiers.map(d => row('Dossier', d.title, d.category, () => {
       go('dossier', {
         id: d.id
       });
       onClose();
-    })), results.datasets.map(d => resultRow('Dataset', d.name, d.category + ' · DataTrust', () => {
+    })), results.datasets.map(d => row('Dataset', d.name, d.category + ' · DataTrust', () => {
       go('datatrust');
       onClose();
-    })), results.pages.map(p => resultRow('Page', p.label, 'Navigate', () => {
+    })), results.pages.map(p => row('Page', p.label, 'Navigate', () => {
       go(p.id);
       onClose();
     })), q.trim() && results.dossiers.length + results.datasets.length + results.pages.length === 0 && h('p', {
-      className: 'text-sm text-stone-400 p-3'
+      className: 'muted small',
+      style: {
+        padding: '10px'
+      }
     }, 'No matches in the sample corpus.'))));
-    function resultRow(type, title, meta, onClick) {
+    function row(type, title, meta, onClick) {
       return h('button', {
         key: type + title,
-        onClick,
-        className: 'w-full text-left rounded-xl px-4 py-3 hover:bg-parchment flex items-center gap-3 transition'
-      }, h(CC.Tag, null, type), h('span', {
-        className: 'flex-1'
-      }, h('span', {
-        className: 'block font-medium'
+        className: 'gs-row',
+        onClick
+      }, h(CC.Tag, null, type), h('span', null, h('span', {
+        style: {
+          display: 'block',
+          fontWeight: 600
+        }
       }, title), h('span', {
-        className: 'block text-xs text-stone-500'
+        className: 'muted small'
       }, meta)));
     }
   };
-
-  /* ---------------- Compare mode (section 21) ---------------- */
   CC.ComparePage = function ComparePage({
     go
   }) {
@@ -2048,64 +2338,63 @@ CC.QUIZ = {
     const [b, setB] = useState('d4');
     const da = CC.DOSSIERS.find(d => d.id === a);
     const db = CC.DOSSIERS.find(d => d.id === b);
-    const fields = [['Period / chronology', d => d.period], ['Geography', d => d.region], ['Materials', d => d.materials], ['Technique / production', d => d.overview.split('.')[1] || d.overview], ['Cultural purpose', d => d.cultural]];
+    const fields = [['Period', d => d.period], ['Geography', d => d.region], ['Materials', d => d.materials], ['Technique', d => d.overview.split('.')[1] || d.overview], ['Cultural purpose', d => d.cultural]];
     return h('div', {
-      className: 'max-w-5xl mx-auto px-6 py-12'
-    }, h(CC.Section, {
-      eyebrow: 'Compare mode',
-      title: 'Compare two subjects',
-      center: true
-    }, 'Select two dossiers to compare chronology, geography, materials, technique and cultural purpose — readable and academic.'), h('div', {
-      className: 'flex gap-4 justify-center mb-10 flex-wrap'
-    }, [da, db].map((d, i) => h('select', {
+      className: 'page'
+    }, h(CC.SectionTitle, null, 'Compare'), h('p', {
+      className: 'muted mb'
+    }, 'Select two dossiers to compare chronology, geography, materials, technique and cultural purpose.'), h('div', {
+      className: 'flex mb',
+      style: {
+        justifyContent: 'center'
+      }
+    }, [[a, setA], [b, setB]].map(([val, set], i) => h('select', {
       key: i,
-      value: i === 0 ? a : b,
-      onChange: e => i === 0 ? setA(e.target.value) : setB(e.target.value),
-      className: 'rounded-full border border-stone-300 px-5 py-2.5 bg-white',
+      className: 'input',
+      value: val,
+      onChange: e => set(e.target.value),
       'aria-label': 'Subject ' + (i + 1)
     }, CC.DOSSIERS.map(x => h('option', {
       key: x.id,
       value: x.id
-    }, x.title))))), h('div', {
-      className: 'space-y-6'
-    }, fields.map(([label, get]) => h('div', {
+    }, x.title))))), fields.map(([label, get]) => h('div', {
       key: label,
-      className: 'grid md:grid-cols-[10rem_1fr_1fr] gap-4 items-start'
+      className: 'mb',
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'minmax(90px,10rem) 1fr 1fr',
+        gap: '14px',
+        alignItems: 'start'
+      }
     }, h('p', {
-      className: 'text-xs font-bold uppercase tracking-wider text-stone-500 pt-4'
+      className: 'muted small',
+      style: {
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        letterSpacing: '.06em',
+        paddingTop: '18px'
+      }
     }, label), [da, db].map((d, i) => h('div', {
       key: d.id + i,
-      className: 'bg-white rounded-2xl border border-stone-200 p-5 shadow-sm'
-    }, i === 0 && h('p', {
-      className: 'md:hidden text-xs font-bold text-ochre mb-2'
+      className: 'panel',
+      style: {
+        padding: '16px'
+      }
+    }, h('p', {
+      className: 'small',
+      style: {
+        fontWeight: 700,
+        color: '#d86d16',
+        margin: '0 0 6px'
+      }
     }, d.title), h('p', {
-      className: 'text-sm text-stone-600 leading-relaxed'
-    }, get(d))))))), h('div', {
-      className: 'text-center mt-10'
-    }, h('button', {
-      onClick: () => go('dossier', {
-        id: a
-      }),
-      className: 'text-ochre font-semibold text-sm hover:underline mr-6'
-    }, 'Open ' + da.title + ' →'), h('button', {
-      onClick: () => go('dossier', {
-        id: b
-      }),
-      className: 'text-ochre font-semibold text-sm hover:underline'
-    }, 'Open ' + db.title + ' →')));
+      className: 'muted small',
+      style: {
+        margin: 0,
+        lineHeight: 1.6
+      }
+    }, get(d)))))));
   };
-
-  /* ---------------- Honest loading labels (section 78) ---------------- */
-  CC.LoadingNote = function LoadingNote({
-    text
-  }) {
-    return h('p', {
-      className: 'text-sm text-stone-500 mt-4',
-      role: 'status'
-    }, text || 'Structuring the research…');
-  };
-
-  /* ---------------- Helpful empty state (section 77) ---------------- */
   CC.EmptyState = function EmptyState({
     title,
     body,
@@ -2113,22 +2402,39 @@ CC.QUIZ = {
     onAction
   }) {
     return h('div', {
-      className: 'text-center bg-white rounded-2xl border border-dashed border-stone-300 p-12'
+      className: 'panel',
+      style: {
+        textAlign: 'center',
+        padding: '48px 24px',
+        borderStyle: 'dashed'
+      }
     }, h('div', {
-      className: 'flex justify-center mb-4'
+      className: 'flex',
+      style: {
+        justifyContent: 'center'
+      }
     }, h(CC.Companion, null)), h('p', {
-      className: 'font-serif text-xl font-bold mb-2'
+      className: 'serif',
+      style: {
+        fontSize: '22px',
+        fontWeight: 700,
+        margin: '12px 0 6px'
+      }
     }, title), h('p', {
-      className: 'text-stone-600 text-sm mb-5 max-w-md mx-auto'
+      className: 'muted small mb',
+      style: {
+        maxWidth: '420px',
+        margin: '0 auto 18px'
+      }
     }, body), cta && h('button', {
-      onClick: onAction,
-      className: 'bg-ochre text-white font-semibold px-6 py-2.5 rounded-full text-sm'
+      className: 'btn orangebtn small',
+      onClick: onAction
     }, cta));
   };
 })();
 /* ===== 07-main.jsx ===== */
 /* ================================================================
-   Main App component + Research workspace dashboard — step 6
+   Main App + workspace dashboard (new design)
    ================================================================ */
 (function () {
   const {
@@ -2136,8 +2442,6 @@ CC.QUIZ = {
     useEffect
   } = React;
   const h = React.createElement;
-
-  /* Research workspace dashboard: projects, saved dossiers, notes */
   CC.WorkspacePage = function WorkspacePage({
     workspace,
     go
@@ -2147,61 +2451,67 @@ CC.QUIZ = {
     const totalNotes = Object.values(workspace).reduce((a, w) => a + (w.notes ? w.notes.length : 0), 0);
     const totalHl = Object.values(workspace).reduce((a, w) => a + (w.highlights ? w.highlights.length : 0), 0);
     return h('div', {
-      className: 'max-w-4xl mx-auto px-6 py-12'
-    }, h(CC.Section, {
-      eyebrow: 'Research workspace',
-      title: 'My research',
-      center: true
+      className: 'page narrow'
+    }, h(CC.SectionTitle, null, 'My research'), h('p', {
+      className: 'muted mb'
     }, 'Your persistent research environment: saved dossiers, highlights, notes and citations — kept in this browser between visits.'), h('div', {
-      className: 'grid sm:grid-cols-3 gap-4 mb-10'
+      className: 'stat-grid mb',
+      style: {
+        gridTemplateColumns: 'repeat(3,1fr)'
+      }
     }, [['Saved dossiers', saved.length], ['Highlights', totalHl], ['Notes', totalNotes]].map(([k, v]) => h('div', {
       key: k,
-      className: 'bg-white rounded-2xl border border-stone-200 p-6 text-center shadow-sm'
-    }, h('p', {
-      className: 'font-serif text-3xl font-bold'
-    }, v), h('p', {
-      className: 'text-xs uppercase tracking-wider text-stone-500 font-bold mt-1'
-    }, k)))), saved.length === 0 ? h(CC.EmptyState, {
+      className: 'stat'
+    }, h('b', null, v), h('span', null, k)))), saved.length === 0 ? h(CC.EmptyState, {
       title: 'No research projects yet',
       body: 'Start a project to collect dossiers, sources, notes, highlights, and citations in one workspace.',
       cta: 'Explore research',
       onAction: () => go('research')
-    }) : h('ul', {
-      className: 'space-y-4'
-    }, saved.map(d => {
+    }) : saved.map(d => {
       const w = workspace[d.id];
-      return h('li', {
+      return h('article', {
         key: d.id,
-        className: 'bg-white rounded-2xl border border-stone-200 p-6 shadow-sm'
+        className: 'panel mb'
       }, h('div', {
-        className: 'flex items-start justify-between gap-4 flex-wrap'
+        className: 'flex between'
       }, h('div', null, h('h3', {
-        className: 'font-serif text-lg font-bold'
+        style: {
+          margin: '0 0 6px'
+        }
       }, d.title), h('p', {
-        className: 'text-sm text-stone-500'
+        className: 'muted small',
+        style: {
+          margin: 0
+        }
       }, d.category + ' · ' + w.highlights.length + ' highlights · ' + w.notes.length + ' notes')), h('div', {
-        className: 'flex gap-3'
+        className: 'flex'
       }, h('button', {
+        className: 'ai',
         onClick: () => go('dossier', {
           id: d.id
-        }),
-        className: 'text-ochre font-semibold text-sm hover:underline'
-      }, 'Continue research'), h('button', {
+        })
+      }, 'Continue research →'), h('button', {
+        className: 'ai',
         onClick: () => go('audio', {
           id: d.id
-        }),
-        className: 'text-ink font-semibold text-sm hover:underline'
+        })
       }, 'Listen'))));
-    })));
+    }));
   };
-
-  /* ------------------------------- APP ------------------------------- */
   function App() {
     const [page, setPage] = useState('home');
     const [params, setParams] = useState({});
     const [workspace, setWorkspace] = useState(() => CC.store.get('workspace', {}));
     const [showOnboarding, setShowOnboarding] = useState(() => !CC.store.get('onboarding', null));
     const [searchOpen, setSearchOpen] = useState(false);
+    useEffect(() => {
+      CC.store.set('workspace', workspace);
+    }, [workspace]);
+    useEffect(() => {
+      window.scrollTo({
+        top: 0
+      });
+    }, [page, params]);
     useEffect(() => {
       function onKey(e) {
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -2212,19 +2522,10 @@ CC.QUIZ = {
       window.addEventListener('keydown', onKey);
       return () => window.removeEventListener('keydown', onKey);
     }, []);
-    useEffect(() => {
-      CC.store.set('workspace', workspace);
-    }, [workspace]);
-    useEffect(() => {
-      window.scrollTo({
-        top: 0
-      });
-    }, [page, params]);
     function go(p, opts) {
       setParams(opts || {});
       setPage(p);
     }
-    const packCount = Object.values(workspace).filter(w => w.saved).length;
     let content;
     switch (page) {
       case 'home':
@@ -2234,7 +2535,8 @@ CC.QUIZ = {
         break;
       case 'explore':
         content = h(CC.ExplorePage, {
-          go
+          go,
+          preset: params
         });
         break;
       case 'research':
@@ -2245,10 +2547,9 @@ CC.QUIZ = {
           go
         });
         break;
-      case 'synthesizer':
-        content = h(CC.SynthesizerPage, {
-          go,
-          preset: ''
+      case 'compare':
+        content = h(CC.ComparePage, {
+          go
         });
         break;
       case 'dossier':
@@ -2270,11 +2571,6 @@ CC.QUIZ = {
           go
         });
         break;
-      case 'compare':
-        content = h(CC.ComparePage, {
-          go
-        });
-        break;
       case 'audio':
         content = h(CC.AudioPage, {
           go,
@@ -2282,62 +2578,85 @@ CC.QUIZ = {
         });
         break;
       case 'datatrust':
-        content = h(CC.DataTrustPage, {
-          go
-        });
+        content = h(CC.DataTrustPage, null);
         break;
       default:
         content = h(CC.HomePage, {
           go
         });
     }
-    return h('div', {
-      className: 'min-h-screen flex flex-col font-sans'
-    }, h(CC.Header, {
+    return h('div', null, h(CC.Header, {
       page,
       go,
-      packCount
+      onSearch: () => setSearchOpen(true)
     }), showOnboarding && h(CC.Onboarding, {
       onDone: () => setShowOnboarding(false)
     }), h(CC.GlobalSearch, {
       open: searchOpen,
       onClose: () => setSearchOpen(false),
       go
-    }), h('main', {
-      className: 'flex-1'
-    }, content, /* quick link to workspace from nav-less pages */
-    page !== 'workspace' && h('div', {
-      className: 'max-w-6xl mx-auto px-6 pb-10 text-center'
-    }, h('button', {
-      onClick: () => go('workspace'),
-      className: 'text-sm text-stone-400 hover:text-ochre'
-    }, 'Open my research workspace (' + packCount + ' saved)'))), h(CC.Footer, null));
+    }), h('main', null, content), h(FooterBar, {
+      go
+    }));
   }
-
-  /* Research index: list of dossiers + synthesizer entry */
-  CC.ResearchIndex = function ResearchIndex({
+  function FooterBar({
     go
   }) {
-    return h('div', {
-      className: 'max-w-6xl mx-auto px-6 py-12'
-    }, h(CC.Section, {
-      eyebrow: 'Research',
-      title: 'Dossiers & the synthesizer',
-      center: true
-    }, 'Browse curated dossiers, or ask the AI Research Synthesizer for a structured entry on any cultural or historical topic.'), h('div', {
-      className: 'text-center mb-10'
-    }, h('button', {
-      onClick: () => go('research', {
-        synthesize: true
-      }),
-      className: 'bg-ink text-paper font-semibold px-8 py-3 rounded-full hover:bg-stone-700 transition'
-    }, 'Open the Research Synthesizer')), h('div', {
-      className: 'grid md:grid-cols-2 lg:grid-cols-3 gap-6'
-    }, CC.DOSSIERS.map(d => h(CC.DossierCard, {
-      key: d.id,
-      d,
-      go
-    }))));
-  };
+    return h('footer', {
+      style: {
+        background: '#171816',
+        color: '#aaa',
+        marginTop: '40px'
+      }
+    }, h('div', {
+      className: 'page',
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '30px',
+        flexWrap: 'wrap'
+      }
+    }, h('div', null, h('p', {
+      className: 'serif',
+      style: {
+        color: '#fff',
+        fontWeight: 700,
+        fontSize: '20px',
+        margin: '0 0 8px'
+      }
+    }, 'DataTrust ', h('span', {
+      style: {
+        color: '#ed8a34'
+      }
+    }, '& CultureCommons')), h('p', {
+      className: 'small',
+      style: {
+        maxWidth: '420px',
+        margin: 0
+      }
+    }, 'Open research infrastructure for culture, history and the arts — with a privacy-first personal-data ecosystem.'), h('div', {
+      className: 'flex mt'
+    }, CC.NAV.map(n => h('button', {
+      key: n.id,
+      className: 'ai small',
+      style: {
+        color: '#aaa'
+      },
+      onClick: () => go(n.id)
+    }, n.label)), h('button', {
+      className: 'ai small',
+      style: {
+        color: '#aaa'
+      },
+      onClick: () => go('workspace')
+    }, 'My research'))), h('div', {
+      className: 'small',
+      style: {
+        maxWidth: '380px'
+      }
+    }, h('p', null, 'Prototype build. AI answers, earnings and privacy metrics are simulations — never production guarantees.'), h('p', {
+      className: 'muted'
+    }, 'Explore. Verify. Listen. Cite. Build.'))));
+  }
   ReactDOM.createRoot(document.getElementById('root')).render(h(App));
 })();
