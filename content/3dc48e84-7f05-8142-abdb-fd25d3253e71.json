@@ -1,0 +1,101 @@
+{
+  "object": "page",
+  "id": "3dc48e84-7f05-8142-abdb-fd25d3253e71",
+  "created_time": "2026-09-15T15:09:00.000Z",
+  "last_edited_time": "2026-09-15T15:09:00.000Z",
+  "created_by": {
+    "object": "user",
+    "id": "308d872b-594c-81c8-9043-00027899c34f"
+  },
+  "last_edited_by": {
+    "object": "user",
+    "id": "308d872b-594c-81c8-9043-00027899c34f"
+  },
+  "cover": null,
+  "icon": null,
+  "parent": {
+    "type": "data_source_id",
+    "data_source_id": "cee82a6d-eebd-4d49-8efd-77d09631ce62",
+    "database_id": "7a48f5f4-be93-4ca4-aed8-3630d508b3b3"
+  },
+  "in_trash": false,
+  "is_archived": false,
+  "is_locked": false,
+  "properties": {
+    "Category": {
+      "id": "GVt%3A",
+      "type": "select",
+      "select": {
+        "id": "49403e78-dade-4ed9-ab6b-4dcaf871bec6",
+        "name": "DataTrust",
+        "color": "purple"
+      }
+    },
+    "AI Build Notes": {
+      "id": "U%5E%5B%5C",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "Marketplace should emphasize provenance and contributor fairness rather than crypto aesthetics.",
+            "link": null
+          },
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "plain_text": "Marketplace should emphasize provenance and contributor fairness rather than crypto aesthetics.",
+          "href": null
+        }
+      ]
+    },
+    "Status": {
+      "id": "XPXT",
+      "type": "select",
+      "select": {
+        "id": "b2d2b050-e1f4-4866-bd0a-513e03bede74",
+        "name": "Prototype",
+        "color": "blue"
+      }
+    },
+    "Priority": {
+      "id": "~%7Bza",
+      "type": "select",
+      "select": {
+        "id": "94918524-d27a-4890-9a8c-f91581a1d447",
+        "name": "High",
+        "color": "orange"
+      }
+    },
+    "Name": {
+      "id": "title",
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "text": {
+            "content": "12 — DataTrust Marketplace, Provenance & Earnings",
+            "link": null
+          },
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "plain_text": "12 — DataTrust Marketplace, Provenance & Earnings",
+          "href": null
+        }
+      ]
+    }
+  },
+  "url": "https://app.notion.com/p/12-DataTrust-Marketplace-Provenance-Earnings-3dc48e847f058142abdbfd25d3253e71",
+  "public_url": null
+}
