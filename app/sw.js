@@ -1,8 +1,9 @@
-const CACHE = 'datatrust-africa-v2';
+const CACHE = 'datatrust-africa-v3';
 const APP_SHELL = [
   './',
   './index.html',
   './app.js',
+  './styles.css',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png'
