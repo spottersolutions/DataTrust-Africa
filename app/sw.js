@@ -1,4 +1,4 @@
-const CACHE = 'datatrust-africa-v3';
+const CACHE = 'datatrust-africa-v4';
 const APP_SHELL = [
   './',
   './index.html',
