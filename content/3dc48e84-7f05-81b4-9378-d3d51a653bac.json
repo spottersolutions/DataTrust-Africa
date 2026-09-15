@@ -1,0 +1,101 @@
+{
+  "object": "page",
+  "id": "3dc48e84-7f05-81b4-9378-d3d51a653bac",
+  "created_time": "2026-09-15T15:09:00.000Z",
+  "last_edited_time": "2026-09-15T15:09:00.000Z",
+  "created_by": {
+    "object": "user",
+    "id": "308d872b-594c-81c8-9043-00027899c34f"
+  },
+  "last_edited_by": {
+    "object": "user",
+    "id": "308d872b-594c-81c8-9043-00027899c34f"
+  },
+  "cover": null,
+  "icon": null,
+  "parent": {
+    "type": "data_source_id",
+    "data_source_id": "cee82a6d-eebd-4d49-8efd-77d09631ce62",
+    "database_id": "7a48f5f4-be93-4ca4-aed8-3630d508b3b3"
+  },
+  "in_trash": false,
+  "is_archived": false,
+  "is_locked": false,
+  "properties": {
+    "Category": {
+      "id": "GVt%3A",
+      "type": "select",
+      "select": {
+        "id": "0a6cdc1e-fb11-46fb-8f77-419889abc81e",
+        "name": "CultureCommons",
+        "color": "green"
+      }
+    },
+    "AI Build Notes": {
+      "id": "U%5E%5B%5C",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "Audio should be synchronized with the research text and useful for accessibility and study.",
+            "link": null
+          },
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "plain_text": "Audio should be synchronized with the research text and useful for accessibility and study.",
+          "href": null
+        }
+      ]
+    },
+    "Status": {
+      "id": "XPXT",
+      "type": "select",
+      "select": {
+        "id": "b2d2b050-e1f4-4866-bd0a-513e03bede74",
+        "name": "Prototype",
+        "color": "blue"
+      }
+    },
+    "Priority": {
+      "id": "~%7Bza",
+      "type": "select",
+      "select": {
+        "id": "94918524-d27a-4890-9a8c-f91581a1d447",
+        "name": "High",
+        "color": "orange"
+      }
+    },
+    "Name": {
+      "id": "title",
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "text": {
+            "content": "07 — Audio, Learning & Accessibility",
+            "link": null
+          },
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "plain_text": "07 — Audio, Learning & Accessibility",
+          "href": null
+        }
+      ]
+    }
+  },
+  "url": "https://app.notion.com/p/07-Audio-Learning-Accessibility-3dc48e847f0581b49378d3d51a653bac",
+  "public_url": null
+}
