@@ -21,6 +21,9 @@ body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,Arial,s
 .btn:disabled{opacity:.4;cursor:default}
 .mobile-menu{display:none;margin-left:auto;background:none;border:0;font-size:24px;cursor:pointer}
 kbd{background:#f0eee8;border-radius:6px;padding:2px 8px;font-size:12px;color:#555}
+.ai{border:0;background:transparent;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;color:#171816;padding:0;text-decoration:none}
+.ai:hover{text-decoration:underline}
+.ai.small{font-size:13px}
 
 /* ---------- hero ---------- */
 .hero{min-height:410px;color:white;position:relative;overflow:hidden;background:linear-gradient(90deg,rgba(11,15,12,.94) 0%,rgba(26,22,17,.75) 48%,rgba(35,21,15,.25)),url('https://images.unsplash.com/photo-1564399579883-451a5d44ec08?auto=format&fit=crop&w=1800&q=85') center/cover}
@@ -141,18 +144,26 @@ textarea.input{border-radius:16px;width:100%;min-height:90px}
 
 @media(max-width:1050px){
   .links{display:none}.mobile-menu{display:block}.actions{display:none}
-  .hero h1{font-size:48px}.grid{grid-template-columns:1fr}
+  .hero{min-height:340px}.hero h1{font-size:42px}.hero p{font-size:16px}
+  .grid{grid-template-columns:1fr}
   .cards,.cards.c3,.cards.c2{grid-template-columns:repeat(3,1fr)}
   .region-grid{grid-template-columns:repeat(3,1fr)}
-  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .stat-grid{grid-template-columns:repeat(2,1fr)!important}
   .mobile-open{display:flex!important;position:fixed;top:72px;left:0;right:0;background:#fff;z-index:29;flex-wrap:wrap;border-bottom:1px solid #eee;padding:12px;border-radius:0}
 }
 @media(max-width:650px){
-  .nav{height:62px}.brand{font-size:19px}
-  .hero-inner{padding-top:38px}.hero h1{font-size:40px}.hero p{font-size:16px}
-  .hero-buttons{flex-wrap:wrap}.search{height:58px}.search .ai{display:none}
-  .cards,.cards.c3,.cards.c2{display:flex;overflow:auto}
-  .card{min-width:245px}.card img{height:170px}
+  .nav{height:62px;padding:0 18px}.brand{font-size:19px}
+  .hero{min-height:300px}.hero-inner{padding:34px 18px 70px}.hero h1{font-size:36px}.hero p{font-size:15px}
+  .hero-buttons{flex-wrap:wrap}.hero-buttons .btn{padding:11px 18px;font-size:13px}
+  .search{height:58px}.search .ai{display:none}
+  .search-wrap{padding:0 14px;margin:-26px auto 0}
+  .cards,.cards.c3,.cards.c2{display:flex;overflow:auto;gap:12px}
+  .card{min-width:245px;flex-shrink:0}.card img{height:170px}
   .region-grid{grid-template-columns:repeat(2,1fr)}
+  .stat-grid{grid-template-columns:1fr 1fr!important}
   .page{padding-left:18px;padding-right:18px}
+  .sheet{padding:22px}
+  table.ledger{font-size:12px}
+  table.ledger th,table.ledger td{padding:8px}
+  .mb[style*='grid-template-columns']{grid-template-columns:1fr!important}
 }
