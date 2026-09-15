@@ -406,6 +406,9 @@ CC.QUIZ = {
     id: 'research',
     label: 'Research'
   }, {
+    id: 'compare',
+    label: 'Compare'
+  }, {
     id: 'commons',
     label: 'Commons'
   }, {
@@ -957,9 +960,9 @@ CC.QUIZ = {
       key: s,
       onClick: () => setQ(s),
       className: 'text-xs bg-parchment rounded-full px-3 py-1.5 text-stone-600 hover:text-ochre'
-    }, s))), state === 'working' && h('p', {
-      className: 'text-sm text-stone-500 mt-6'
-    }, 'Synthesizing from the sample corpus…'), state === 'done' && result && h('div', {
+    }, s))), state === 'working' && h(CC.LoadingNote, {
+      text: 'Structuring the research… pairing answers with sources and a confidence estimate.'
+    }), state === 'done' && result && h('div', {
       className: 'mt-6 border-t border-stone-200 pt-6',
       'aria-live': 'polite'
     }, result.uncertain ? h('div', {
@@ -1824,6 +1827,305 @@ CC.QUIZ = {
     }, h('strong', null, 'Reputation: '), 'contributors build standing through high-quality, source-backed work — Contributor → Trusted → Verified → Institutional. No meaningless gamification, no popularity contests.'));
   };
 })();
+/* ===== 08-ux-spec.jsx ===== */
+/* ================================================================
+   Spec sections 65-100 additions: onboarding, global search (Ctrl+K),
+   Compare mode, empty states, loading labels, Research Companion.
+   ================================================================ */
+(function () {
+  const {
+    useState,
+    useEffect,
+    useMemo
+  } = React;
+  const h = React.createElement;
+
+  /* ---------------- Research Companion (secondary brand layer) ---------------- */
+  CC.Companion = function Companion({
+    message
+  }) {
+    /* Abstract archival-geometric mark: layered diamond + circle, no robot clichés */
+    return h('div', {
+      className: 'flex items-center gap-4',
+      role: 'img',
+      'aria-label': 'Research Companion'
+    }, h('svg', {
+      width: '44',
+      height: '44',
+      viewBox: '0 0 44 44',
+      fill: 'none',
+      'aria-hidden': 'true'
+    }, h('rect', {
+      x: '8',
+      y: '8',
+      width: '28',
+      height: '28',
+      rx: '3',
+      transform: 'rotate(45 22 22)',
+      fill: '#b45309',
+      opacity: '0.15'
+    }), h('rect', {
+      x: '12',
+      y: '12',
+      width: '20',
+      height: '20',
+      rx: '2',
+      transform: 'rotate(45 22 22)',
+      stroke: '#b45309',
+      strokeWidth: '1.5'
+    }), h('circle', {
+      cx: '22',
+      cy: '22',
+      r: '4',
+      fill: '#1a1712'
+    }), h('path', {
+      d: 'M22 4v6M22 34v6M4 22h6M34 22h6',
+      stroke: '#b45309',
+      strokeWidth: '1.5',
+      strokeLinecap: 'round'
+    })), message ? h('p', {
+      className: 'text-sm text-stone-500 italic'
+    }, message) : null);
+  };
+
+  /* ---------------- Onboarding (section 79-80) ---------------- */
+  CC.Onboarding = function Onboarding({
+    onDone
+  }) {
+    const [step, setStep] = useState(0);
+    const purposes = ['Research', 'Study', 'Teaching', 'Explore culture', 'Contribute knowledge', 'Manage my data'];
+    const interests = ['Art', 'History', 'Archaeology', 'Literature', 'Materials', 'Cultural traditions', 'Museums', 'Ancient civilizations', 'Languages'];
+    const [purpose, setPurpose] = useState(null);
+    const [picked, setPicked] = useState([]);
+    function finish() {
+      CC.store.set('onboarding', {
+        purpose,
+        interests: picked
+      });
+      onDone();
+    }
+    return h('div', {
+      className: 'fixed inset-0 z-50 bg-ink/60 flex items-center justify-center p-4',
+      role: 'dialog',
+      'aria-modal': 'true'
+    }, h('div', {
+      className: 'bg-paper rounded-3xl max-w-lg w-full p-8 shadow-xl'
+    }, h(CC.Companion, {
+      message: step === 0 ? 'Welcome. One quick question to make this useful — or skip and explore right away.' : 'Good. Anything in particular you care about?'
+    }), step === 0 ? h('div', {
+      className: 'mt-6'
+    }, h('h2', {
+      className: 'font-serif text-2xl font-bold mb-4'
+    }, 'What brings you here?'), h('div', {
+      className: 'grid grid-cols-2 gap-2 mb-6'
+    }, purposes.map(p => h('button', {
+      key: p,
+      onClick: () => setPurpose(p),
+      className: 'rounded-xl border px-4 py-3 text-sm font-medium transition ' + (purpose === p ? 'border-ochre bg-ochre/10 text-ochre' : 'border-stone-200 hover:border-ochre')
+    }, p))), h('div', {
+      className: 'flex justify-between items-center'
+    }, h('button', {
+      onClick: finish,
+      className: 'text-sm text-stone-500 hover:text-ochre'
+    }, 'Skip — just let me explore'), h('button', {
+      onClick: () => setStep(1),
+      disabled: !purpose,
+      className: 'bg-ochre text-white font-semibold px-6 py-2.5 rounded-full text-sm disabled:opacity-40'
+    }, 'Continue'))) : h('div', {
+      className: 'mt-6'
+    }, h('h2', {
+      className: 'font-serif text-2xl font-bold mb-4'
+    }, 'What are you interested in?'), h('div', {
+      className: 'flex flex-wrap gap-2 mb-6'
+    }, interests.map(i => h('button', {
+      key: i,
+      onClick: () => setPicked(s => s.includes(i) ? s.filter(x => x !== i) : s.concat([i])),
+      className: 'rounded-full px-4 py-2 text-sm font-medium transition ' + (picked.includes(i) ? 'bg-ochre text-white' : 'bg-parchment text-stone-600 hover:bg-stone-200')
+    }, i))), h('div', {
+      className: 'flex justify-between items-center'
+    }, h('button', {
+      onClick: finish,
+      className: 'text-sm text-stone-500 hover:text-ochre'
+    }, 'Skip'), h('button', {
+      onClick: finish,
+      className: 'bg-ochre text-white font-semibold px-6 py-2.5 rounded-full text-sm'
+    }, 'Start researching')))));
+  };
+
+  /* ---------------- Global search overlay (Ctrl/Cmd+K, sections 82-84) ---------------- */
+  CC.GlobalSearch = function GlobalSearch({
+    open,
+    onClose,
+    go
+  }) {
+    const [q, setQ] = useState('');
+    useEffect(() => {
+      function onKey(e) {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          onClose === null ? null : open ? onClose() : null;
+        }
+        if (e.key === 'Escape' && open) onClose();
+      }
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }, [open]);
+    const results = useMemo(() => {
+      if (!q.trim()) return {
+        dossiers: [],
+        datasets: [],
+        pages: []
+      };
+      const needle = q.toLowerCase();
+      return {
+        dossiers: CC.DOSSIERS.filter(d => (d.title + d.overview + d.category + d.region).toLowerCase().includes(needle)).slice(0, 4),
+        datasets: CC.DATASETS.filter(d => (d.name + d.category).toLowerCase().includes(needle)).slice(0, 2),
+        pages: CC.NAV.filter(n => n.label.toLowerCase().includes(needle))
+      };
+    }, [q]);
+    if (!open) return null;
+    return h('div', {
+      className: 'fixed inset-0 z-50 bg-ink/60 flex items-start justify-center pt-24 p-4',
+      onClick: onClose,
+      role: 'dialog',
+      'aria-modal': 'true',
+      'aria-label': 'Global search'
+    }, h('div', {
+      className: 'bg-paper rounded-2xl max-w-xl w-full shadow-xl overflow-hidden',
+      onClick: e => e.stopPropagation()
+    }, h('div', {
+      className: 'flex items-center gap-3 px-5 py-4 border-b border-stone-200'
+    }, h('span', {
+      'aria-hidden': 'true',
+      className: 'text-stone-400'
+    }, '⌕'), h('input', {
+      autoFocus: true,
+      value: q,
+      onChange: e => setQ(e.target.value),
+      placeholder: 'Search dossiers, datasets, pages… (Esc to close)',
+      className: 'flex-1 bg-transparent focus:outline-none text-lg',
+      'aria-label': 'Search everything'
+    }), h('kbd', {
+      className: 'text-xs bg-parchment rounded px-2 py-1 text-stone-500'
+    }, 'Esc')), h('div', {
+      className: 'max-h-80 overflow-y-auto p-3'
+    }, !q.trim() && h('p', {
+      className: 'text-sm text-stone-400 p-3'
+    }, 'Try "Maya astronomy", "Renaissance pigments", "permissions"…'), results.dossiers.map(d => resultRow('Dossier', d.title, d.category, () => {
+      go('dossier', {
+        id: d.id
+      });
+      onClose();
+    })), results.datasets.map(d => resultRow('Dataset', d.name, d.category + ' · DataTrust', () => {
+      go('datatrust');
+      onClose();
+    })), results.pages.map(p => resultRow('Page', p.label, 'Navigate', () => {
+      go(p.id);
+      onClose();
+    })), q.trim() && results.dossiers.length + results.datasets.length + results.pages.length === 0 && h('p', {
+      className: 'text-sm text-stone-400 p-3'
+    }, 'No matches in the sample corpus.'))));
+    function resultRow(type, title, meta, onClick) {
+      return h('button', {
+        key: type + title,
+        onClick,
+        className: 'w-full text-left rounded-xl px-4 py-3 hover:bg-parchment flex items-center gap-3 transition'
+      }, h(CC.Tag, null, type), h('span', {
+        className: 'flex-1'
+      }, h('span', {
+        className: 'block font-medium'
+      }, title), h('span', {
+        className: 'block text-xs text-stone-500'
+      }, meta)));
+    }
+  };
+
+  /* ---------------- Compare mode (section 21) ---------------- */
+  CC.ComparePage = function ComparePage({
+    go
+  }) {
+    const [a, setA] = useState('d2');
+    const [b, setB] = useState('d4');
+    const da = CC.DOSSIERS.find(d => d.id === a);
+    const db = CC.DOSSIERS.find(d => d.id === b);
+    const fields = [['Period / chronology', d => d.period], ['Geography', d => d.region], ['Materials', d => d.materials], ['Technique / production', d => d.overview.split('.')[1] || d.overview], ['Cultural purpose', d => d.cultural]];
+    return h('div', {
+      className: 'max-w-5xl mx-auto px-6 py-12'
+    }, h(CC.Section, {
+      eyebrow: 'Compare mode',
+      title: 'Compare two subjects',
+      center: true
+    }, 'Select two dossiers to compare chronology, geography, materials, technique and cultural purpose — readable and academic.'), h('div', {
+      className: 'flex gap-4 justify-center mb-10 flex-wrap'
+    }, [da, db].map((d, i) => h('select', {
+      key: i,
+      value: i === 0 ? a : b,
+      onChange: e => i === 0 ? setA(e.target.value) : setB(e.target.value),
+      className: 'rounded-full border border-stone-300 px-5 py-2.5 bg-white',
+      'aria-label': 'Subject ' + (i + 1)
+    }, CC.DOSSIERS.map(x => h('option', {
+      key: x.id,
+      value: x.id
+    }, x.title))))), h('div', {
+      className: 'space-y-6'
+    }, fields.map(([label, get]) => h('div', {
+      key: label,
+      className: 'grid md:grid-cols-[10rem_1fr_1fr] gap-4 items-start'
+    }, h('p', {
+      className: 'text-xs font-bold uppercase tracking-wider text-stone-500 pt-4'
+    }, label), [da, db].map((d, i) => h('div', {
+      key: d.id + i,
+      className: 'bg-white rounded-2xl border border-stone-200 p-5 shadow-sm'
+    }, i === 0 && h('p', {
+      className: 'md:hidden text-xs font-bold text-ochre mb-2'
+    }, d.title), h('p', {
+      className: 'text-sm text-stone-600 leading-relaxed'
+    }, get(d))))))), h('div', {
+      className: 'text-center mt-10'
+    }, h('button', {
+      onClick: () => go('dossier', {
+        id: a
+      }),
+      className: 'text-ochre font-semibold text-sm hover:underline mr-6'
+    }, 'Open ' + da.title + ' →'), h('button', {
+      onClick: () => go('dossier', {
+        id: b
+      }),
+      className: 'text-ochre font-semibold text-sm hover:underline'
+    }, 'Open ' + db.title + ' →')));
+  };
+
+  /* ---------------- Honest loading labels (section 78) ---------------- */
+  CC.LoadingNote = function LoadingNote({
+    text
+  }) {
+    return h('p', {
+      className: 'text-sm text-stone-500 mt-4',
+      role: 'status'
+    }, text || 'Structuring the research…');
+  };
+
+  /* ---------------- Helpful empty state (section 77) ---------------- */
+  CC.EmptyState = function EmptyState({
+    title,
+    body,
+    cta,
+    onAction
+  }) {
+    return h('div', {
+      className: 'text-center bg-white rounded-2xl border border-dashed border-stone-300 p-12'
+    }, h('div', {
+      className: 'flex justify-center mb-4'
+    }, h(CC.Companion, null)), h('p', {
+      className: 'font-serif text-xl font-bold mb-2'
+    }, title), h('p', {
+      className: 'text-stone-600 text-sm mb-5 max-w-md mx-auto'
+    }, body), cta && h('button', {
+      onClick: onAction,
+      className: 'bg-ochre text-white font-semibold px-6 py-2.5 rounded-full text-sm'
+    }, cta));
+  };
+})();
 /* ===== 07-main.jsx ===== */
 /* ================================================================
    Main App component + Research workspace dashboard — step 6
@@ -1859,16 +2161,12 @@ CC.QUIZ = {
       className: 'font-serif text-3xl font-bold'
     }, v), h('p', {
       className: 'text-xs uppercase tracking-wider text-stone-500 font-bold mt-1'
-    }, k)))), saved.length === 0 ? h('div', {
-      className: 'text-center bg-white rounded-2xl border border-dashed border-stone-300 p-12'
-    }, h('p', {
-      className: 'font-serif text-xl font-bold mb-2'
-    }, 'Nothing saved yet'), h('p', {
-      className: 'text-stone-600 text-sm mb-4'
-    }, 'Open a dossier and click "Save to workspace" to start your research project.'), h('button', {
-      onClick: () => go('research'),
-      className: 'bg-ochre text-white font-semibold px-6 py-2.5 rounded-full text-sm'
-    }, 'Browse research')) : h('ul', {
+    }, k)))), saved.length === 0 ? h(CC.EmptyState, {
+      title: 'No research projects yet',
+      body: 'Start a project to collect dossiers, sources, notes, highlights, and citations in one workspace.',
+      cta: 'Explore research',
+      onAction: () => go('research')
+    }) : h('ul', {
       className: 'space-y-4'
     }, saved.map(d => {
       const w = workspace[d.id];
@@ -1902,6 +2200,18 @@ CC.QUIZ = {
     const [page, setPage] = useState('home');
     const [params, setParams] = useState({});
     const [workspace, setWorkspace] = useState(() => CC.store.get('workspace', {}));
+    const [showOnboarding, setShowOnboarding] = useState(() => !CC.store.get('onboarding', null));
+    const [searchOpen, setSearchOpen] = useState(false);
+    useEffect(() => {
+      function onKey(e) {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          setSearchOpen(s => !s);
+        }
+      }
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }, []);
     useEffect(() => {
       CC.store.set('workspace', workspace);
     }, [workspace]);
@@ -1960,6 +2270,11 @@ CC.QUIZ = {
           go
         });
         break;
+      case 'compare':
+        content = h(CC.ComparePage, {
+          go
+        });
+        break;
       case 'audio':
         content = h(CC.AudioPage, {
           go,
@@ -1982,6 +2297,12 @@ CC.QUIZ = {
       page,
       go,
       packCount
+    }), showOnboarding && h(CC.Onboarding, {
+      onDone: () => setShowOnboarding(false)
+    }), h(CC.GlobalSearch, {
+      open: searchOpen,
+      onClose: () => setSearchOpen(false),
+      go
     }), h('main', {
       className: 'flex-1'
     }, content, /* quick link to workspace from nav-less pages */
