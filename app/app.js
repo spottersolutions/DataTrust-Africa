@@ -444,9 +444,11 @@ CC.QUIZ = {
   CC.Header = function Header({
     page,
     go,
-    onSearch
+    onSearch,
+    user
   }) {
     const [open, setOpen] = useState(false);
+    const displayName = user && (user.user_metadata && user.user_metadata.display_name ? user.user_metadata.display_name : user.email);
     return h('header', {
       className: 'nav'
     }, h('div', {
@@ -472,16 +474,34 @@ CC.QUIZ = {
       className: 'btn small',
       onClick: onSearch,
       'aria-label': 'Search (Ctrl+K)'
-    }, '⌕ Search'), h('span', {
-      className: 'muted small',
-      title: 'Prototype — accounts are simulated'
-    }, 'EN ⌄'), h('button', {
+    }, '⌕ Search'), user ? h('div', {
+      className: 'flex',
+      style: {
+        gap: '8px'
+      }
+    }, h('button', {
       className: 'btn small',
-      onClick: () => go('datatrust')
+      onClick: () => go('workspace'),
+      title: user.email
+    }, '👤 ' + (displayName || 'Account')), h('button', {
+      className: 'btn dark small',
+      onClick: () => CC.signOut().then(() => go('home'))
+    }, 'Sign out')) : h('div', {
+      className: 'flex',
+      style: {
+        gap: '8px'
+      }
+    }, h('button', {
+      className: 'btn small',
+      onClick: () => go('auth', {
+        mode: 'signin'
+      })
     }, 'Sign in'), h('button', {
       className: 'btn dark small',
-      onClick: () => go('research')
-    }, 'Create account')), h('button', {
+      onClick: () => go('auth', {
+        mode: 'signup'
+      })
+    }, 'Create account'))), h('button', {
       className: 'mobile-menu',
       onClick: () => setOpen(!open),
       'aria-expanded': open,
@@ -2432,6 +2452,220 @@ CC.QUIZ = {
     }, cta));
   };
 })();
+/* ===== 09-auth.jsx ===== */
+/* ================================================================
+   Auth — Supabase-backed accounts (sign up, sign in, sign out)
+   Project URL + anon key are set in config.js (created at setup).
+   Until configured, auth buttons show a "setup required" state.
+   ================================================================ */
+(function () {
+  const {
+    useState,
+    useEffect
+  } = React;
+  const h = React.createElement;
+  let supabase = null;
+  function client() {
+    if (supabase) return supabase;
+    if (!window.supabase || !window.SUPABASE_CONFIG) return null;
+    const {
+      url,
+      anonKey
+    } = window.SUPABASE_CONFIG;
+    if (!url || !anonKey || url.includes('YOUR_PROJECT')) return null;
+    supabase = window.supabase.createClient(url, anonKey);
+    return supabase;
+  }
+  CC.authReady = function () {
+    return !!client();
+  };
+  CC.useAuth = function () {
+    const [user, setUser] = useState(null);
+    const [loaded, setLoaded] = useState(false);
+    useEffect(() => {
+      const sb = client();
+      if (!sb) {
+        setLoaded(true);
+        return;
+      }
+      sb.auth.getSession().then(({
+        data
+      }) => {
+        setUser(data.session ? data.session.user : null);
+        setLoaded(true);
+      });
+      const {
+        data: sub
+      } = sb.auth.onAuthStateChange((_e, session) => setUser(session ? session.user : null));
+      return () => sub.subscription.unsubscribe();
+    }, []);
+    return {
+      user,
+      loaded
+    };
+  };
+  CC.signOut = function () {
+    const sb = client();
+    if (sb) return sb.auth.signOut();
+  };
+  CC.AuthPage = function AuthPage({
+    go,
+    mode: initialMode
+  }) {
+    const [mode, setMode] = useState(initialMode || 'signin');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [busy, setBusy] = useState(false);
+    const [msg, setMsg] = useState(null);
+    const ready = CC.authReady();
+    async function submit(e) {
+      e.preventDefault();
+      const sb = client();
+      if (!sb) return;
+      setBusy(true);
+      setMsg(null);
+      try {
+        if (mode === 'signup') {
+          const {
+            error
+          } = await sb.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                display_name: name
+              }
+            }
+          });
+          if (error) throw error;
+          setMsg({
+            type: 'green',
+            text: 'Account created! Check your email to confirm your address, then sign in.'
+          });
+          setMode('signin');
+        } else {
+          const {
+            error
+          } = await sb.auth.signInWithPassword({
+            email,
+            password
+          });
+          if (error) throw error;
+          go('home');
+        }
+      } catch (err) {
+        setMsg({
+          type: 'amber',
+          text: err.message || 'Something went wrong. Try again.'
+        });
+      }
+      setBusy(false);
+    }
+    return h('div', {
+      className: 'page narrow',
+      style: {
+        maxWidth: '480px'
+      }
+    }, h('div', {
+      className: 'panel',
+      style: {
+        padding: '36px'
+      }
+    }, h('div', {
+      className: 'flex mb',
+      style: {
+        justifyContent: 'center'
+      }
+    }, h(CC.Companion, null)), h('h2', {
+      style: {
+        textAlign: 'center',
+        marginTop: '8px'
+      }
+    }, mode === 'signup' ? 'Create your account' : 'Welcome back'), h('p', {
+      className: 'muted small',
+      style: {
+        textAlign: 'center'
+      }
+    }, mode === 'signup' ? 'One account for CultureCommons research and your DataTrust settings.' : 'Sign in to sync your workspace, permissions and contributions.'), !ready && h('div', {
+      className: 'notice amber mb'
+    }, h('strong', null, 'Auth not configured yet. '), 'The app needs its Supabase project URL and anon key in app/config.js. Accounts will work as soon as those are added.'), msg && h('div', {
+      className: 'notice ' + msg.type + ' mb'
+    }, msg.text), h('form', {
+      onSubmit: submit
+    }, mode === 'signup' && h('div', {
+      className: 'mb'
+    }, h('label', {
+      className: 'small muted',
+      htmlFor: 'auth-name'
+    }, 'Display name'), h('input', {
+      id: 'auth-name',
+      className: 'input',
+      style: {
+        width: '100%',
+        marginTop: '6px'
+      },
+      value: name,
+      onChange: e => setName(e.target.value),
+      placeholder: 'e.g. Amina Diallo',
+      required: true
+    })), h('div', {
+      className: 'mb'
+    }, h('label', {
+      className: 'small muted',
+      htmlFor: 'auth-email'
+    }, 'Email'), h('input', {
+      id: 'auth-email',
+      className: 'input',
+      style: {
+        width: '100%',
+        marginTop: '6px'
+      },
+      type: 'email',
+      value: email,
+      onChange: e => setEmail(e.target.value),
+      placeholder: 'you@example.com',
+      required: true
+    })), h('div', {
+      className: 'mb'
+    }, h('label', {
+      className: 'small muted',
+      htmlFor: 'auth-pass'
+    }, 'Password'), h('input', {
+      id: 'auth-pass',
+      className: 'input',
+      style: {
+        width: '100%',
+        marginTop: '6px'
+      },
+      type: 'password',
+      value: password,
+      onChange: e => setPassword(e.target.value),
+      placeholder: 'At least 6 characters',
+      minLength: 6,
+      required: true
+    })), h('button', {
+      className: 'btn orangebtn',
+      style: {
+        width: '100%'
+      },
+      disabled: busy || !ready,
+      type: 'submit'
+    }, busy ? 'Working…' : mode === 'signup' ? 'Create account' : 'Sign in')), h('p', {
+      className: 'small muted',
+      style: {
+        textAlign: 'center',
+        marginTop: '18px'
+      }
+    }, mode === 'signup' ? 'Already have an account? ' : 'New here? ', h('button', {
+      className: 'ai small',
+      onClick: () => {
+        setMode(mode === 'signup' ? 'signin' : 'signup');
+        setMsg(null);
+      }
+    }, mode === 'signup' ? 'Sign in' : 'Create an account'))));
+  };
+})();
 /* ===== 07-main.jsx ===== */
 /* ================================================================
    Main App + workspace dashboard (new design)
@@ -2504,6 +2738,9 @@ CC.QUIZ = {
     const [workspace, setWorkspace] = useState(() => CC.store.get('workspace', {}));
     const [showOnboarding, setShowOnboarding] = useState(() => !CC.store.get('onboarding', null));
     const [searchOpen, setSearchOpen] = useState(false);
+    const {
+      user
+    } = CC.useAuth();
     useEffect(() => {
       CC.store.set('workspace', workspace);
     }, [workspace]);
@@ -2580,6 +2817,12 @@ CC.QUIZ = {
       case 'datatrust':
         content = h(CC.DataTrustPage, null);
         break;
+      case 'auth':
+        content = h(CC.AuthPage, {
+          go,
+          mode: params.mode
+        });
+        break;
       default:
         content = h(CC.HomePage, {
           go
@@ -2588,7 +2831,8 @@ CC.QUIZ = {
     return h('div', null, h(CC.Header, {
       page,
       go,
-      onSearch: () => setSearchOpen(true)
+      onSearch: () => setSearchOpen(true),
+      user
     }), showOnboarding && h(CC.Onboarding, {
       onDone: () => setShowOnboarding(false)
     }), h(CC.GlobalSearch, {
