@@ -1,0 +1,101 @@
+{
+  "object": "page",
+  "id": "3dc48e84-7f05-811a-8f7c-cffdb4b5e064",
+  "created_time": "2026-09-15T15:09:00.000Z",
+  "last_edited_time": "2026-09-15T15:09:00.000Z",
+  "created_by": {
+    "object": "user",
+    "id": "308d872b-594c-81c8-9043-00027899c34f"
+  },
+  "last_edited_by": {
+    "object": "user",
+    "id": "308d872b-594c-81c8-9043-00027899c34f"
+  },
+  "cover": null,
+  "icon": null,
+  "parent": {
+    "type": "data_source_id",
+    "data_source_id": "cee82a6d-eebd-4d49-8efd-77d09631ce62",
+    "database_id": "7a48f5f4-be93-4ca4-aed8-3630d508b3b3"
+  },
+  "in_trash": false,
+  "is_archived": false,
+  "is_locked": false,
+  "properties": {
+    "Category": {
+      "id": "GVt%3A",
+      "type": "select",
+      "select": {
+        "id": "48ee1b7c-0533-4d1f-bf09-60d915ca9d10",
+        "name": "Technical",
+        "color": "gray"
+      }
+    },
+    "AI Build Notes": {
+      "id": "U%5E%5B%5C",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "Use semantic HTML and production-quality component structure. Prototype simulations must not be presented as real cryptographic/security functions.",
+            "link": null
+          },
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "plain_text": "Use semantic HTML and production-quality component structure. Prototype simulations must not be presented as real cryptographic/security functions.",
+          "href": null
+        }
+      ]
+    },
+    "Status": {
+      "id": "XPXT",
+      "type": "select",
+      "select": {
+        "id": "263ba94a-2625-4943-827c-df80faea756e",
+        "name": "Defined",
+        "color": "green"
+      }
+    },
+    "Priority": {
+      "id": "~%7Bza",
+      "type": "select",
+      "select": {
+        "id": "f814bae1-b6c5-455e-b6fe-f3bb15d2ae39",
+        "name": "Core",
+        "color": "red"
+      }
+    },
+    "Name": {
+      "id": "title",
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "text": {
+            "content": "16 — Responsive, Accessibility & Technical HTML Requirements",
+            "link": null
+          },
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "plain_text": "16 — Responsive, Accessibility & Technical HTML Requirements",
+          "href": null
+        }
+      ]
+    }
+  },
+  "url": "https://app.notion.com/p/16-Responsive-Accessibility-Technical-HTML-Requirements-3dc48e847f05811a8f7ccffdb4b5e064",
+  "public_url": null
+}
