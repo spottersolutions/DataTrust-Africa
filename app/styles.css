@@ -32,6 +32,8 @@ kbd{background:#f0eee8;border-radius:6px;padding:2px 8px;font-size:12px;color:#5
 
 /* ---------- hero ---------- */
 .hero{min-height:410px;color:white;position:relative;overflow:hidden;background:linear-gradient(90deg,rgba(11,15,12,.94) 0%,rgba(26,22,17,.75) 48%,rgba(35,21,15,.25)),url('https://images.unsplash.com/photo-1564399579883-451a5d44ec08?auto=format&fit=crop&w=1800&q=85') center/cover}
+.hero-inner{position:relative;z-index:2}
+.hero .eyebrow{position:relative;z-index:2}
 .hero-inner{padding:48px 4% 85px;max-width:850px}
 .eyebrow{text-transform:uppercase;letter-spacing:5px;font-size:12px}
 .hero h1{font-size:62px;line-height:.94;margin:14px 0 18px}
