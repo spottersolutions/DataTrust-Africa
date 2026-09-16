@@ -33,6 +33,47 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
     id: 'datatrust',
     label: 'DataTrust'
   }];
+  CC.LogoMark = function LogoMark({
+    size,
+    style
+  }) {
+    return h('svg', {
+      width: size || 44,
+      height: size || 44,
+      viewBox: '0 0 44 44',
+      fill: 'none',
+      'aria-hidden': 'true',
+      style
+    }, h('rect', {
+      x: '8',
+      y: '8',
+      width: '28',
+      height: '28',
+      rx: '3',
+      transform: 'rotate(45 22 22)',
+      fill: '#d86d16',
+      opacity: '0.15'
+    }), h('rect', {
+      x: '12',
+      y: '12',
+      width: '20',
+      height: '20',
+      rx: '2',
+      transform: 'rotate(45 22 22)',
+      stroke: '#d86d16',
+      strokeWidth: '1.5'
+    }), h('circle', {
+      cx: '22',
+      cy: '22',
+      r: '4',
+      fill: '#11130f'
+    }), h('path', {
+      d: 'M22 4v6M22 34v6M4 22h6M34 22h6',
+      stroke: '#d86d16',
+      strokeWidth: '1.5',
+      strokeLinecap: 'round'
+    }));
+  };
   CC.STATUS_TAG = {
     'Source-backed': 'moss',
     'Primary source available': 'moss',
@@ -77,41 +118,9 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
         alignItems: 'center',
         gap: '12px'
       }
-    }, h('svg', {
-      width: '52',
-      height: '52',
-      viewBox: '0 0 44 44',
-      fill: 'none',
-      'aria-hidden': 'true'
-    }, h('rect', {
-      x: '8',
-      y: '8',
-      width: '28',
-      height: '28',
-      rx: '3',
-      transform: 'rotate(45 22 22)',
-      fill: '#d86d16',
-      opacity: '0.15'
-    }), h('rect', {
-      x: '12',
-      y: '12',
-      width: '20',
-      height: '20',
-      rx: '2',
-      transform: 'rotate(45 22 22)',
-      stroke: '#d86d16',
-      strokeWidth: '1.5'
-    }), h('circle', {
-      cx: '22',
-      cy: '22',
-      r: '4',
-      fill: '#11130f'
-    }), h('path', {
-      d: 'M22 4v6M22 34v6M4 22h6M34 22h6',
-      stroke: '#d86d16',
-      strokeWidth: '1.5',
-      strokeLinecap: 'round'
-    })), h('span', {
+    }, h(CC.LogoMark, {
+      size: 52
+    }), h('span', {
       style: {
         fontSize: '15px',
         lineHeight: 1.1
@@ -331,8 +340,25 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
     return h('div', null, /* hero */
     h('section', {
       className: 'hero'
-    }, h('div', {
-      className: 'hero-inner'
+    }, /* watermark brand mark: oversized, half-cropped off the right edge, low opacity */
+    h('div', {
+      'aria-hidden': 'true',
+      style: {
+        position: 'absolute',
+        right: '-140px',
+        top: '50%',
+        transform: 'translateY(-50%) rotate(8deg)',
+        opacity: 0.16,
+        pointerEvents: 'none',
+        filter: 'drop-shadow(0 0 60px rgba(216,109,22,.4))'
+      }
+    }, h(CC.LogoMark, {
+      size: 520
+    })), h('div', {
+      className: 'hero-inner',
+      style: {
+        position: 'relative'
+      }
     }, h('div', {
       className: 'eyebrow'
     }, 'Culture × Knowledge × People × A Fairer Data Future'), h('h1', null, 'Explore the past.', h('br', null), 'Build a ', h('span', {
