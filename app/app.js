@@ -72,16 +72,7 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
       role: 'button',
       tabIndex: 0,
       onKeyDown: e => e.key === 'Enter' && go('home')
-    }, 'DataTrust ', h('b', null, '& CultureCommons')), h('button', {
-      className: 'burger',
-      style: {
-        marginLeft: 0,
-        marginRight: '8px'
-      },
-      onClick: () => setOpen(!open),
-      'aria-expanded': open,
-      'aria-label': 'Menu'
-    }, '☰'), open && h('nav', {
+    }, 'DataTrust ', h('b', null, '& CultureCommons')), open && h('nav', {
       className: 'drawer',
       'aria-label': 'Main'
     }, CC.NAV.map(n => h('button', {
@@ -146,7 +137,7 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
         mode: 'signup'
       })
     }, 'Create account'))), h('button', {
-      className: 'mobile-menu',
+      className: 'burger',
       onClick: () => setOpen(!open),
       'aria-expanded': open,
       'aria-label': 'Menu'
