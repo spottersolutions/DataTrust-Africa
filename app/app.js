@@ -2504,13 +2504,17 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
         textAlign: 'center',
         marginTop: '18px'
       }
-    }, mode === 'signup' ? 'Already have an account? ' : 'New here? ', h('button', {
-      className: 'ai small',
+    }, mode === 'signup' ? 'Already have an account? ' : 'New here? '), h('button', {
+      className: 'btn small',
+      style: {
+        display: 'block',
+        margin: '4px auto 0'
+      },
       onClick: () => {
         setMode(mode === 'signup' ? 'signin' : 'signup');
         setMsg(null);
       }
-    }, mode === 'signup' ? 'Sign in' : 'Create an account'))));
+    }, mode === 'signup' ? 'Sign in instead' : 'Create an account instead')));
   };
 })();/* ================================================================
    My Library — dossiers the user has purchased/unlocked
