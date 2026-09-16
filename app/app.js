@@ -2360,11 +2360,22 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
     mode: initialMode
   }) {
     const [mode, setMode] = useState(initialMode || 'signin');
+    const [msgKey, setMsgKey] = useState(0);
+    /* respond to header Sign in / Create account clicks while already on the page */
+    useEffect(() => {
+      if (initialMode) {
+        setMode(initialMode);
+        setMsgKey(k => k + 1);
+      }
+    }, [initialMode]);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [busy, setBusy] = useState(false);
     const [msg, setMsg] = useState(null);
+    useEffect(() => {
+      setMsg(null);
+    }, [mode]);
     const ready = CC.authReady();
     async function submit(e) {
       e.preventDefault();
@@ -2808,7 +2819,8 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
       case 'auth':
         content = h(CC.AuthPage, {
           go,
-          mode: params.mode
+          mode: params.mode,
+          key: 'auth-' + (params.mode || 'default')
         });
         break;
       default:
