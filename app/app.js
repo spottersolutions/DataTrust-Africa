@@ -75,11 +75,11 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
       style: {
         display: 'flex',
         alignItems: 'center',
-        gap: '10px'
+        gap: '12px'
       }
     }, h('svg', {
-      width: '34',
-      height: '34',
+      width: '52',
+      height: '52',
       viewBox: '0 0 44 44',
       fill: 'none',
       'aria-hidden': 'true'
@@ -111,7 +111,12 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
       stroke: '#d86d16',
       strokeWidth: '1.5',
       strokeLinecap: 'round'
-    })), h('span', null, 'DataTrust ', h('b', null, '& CultureCommons'))), open && h('nav', {
+    })), h('span', {
+      style: {
+        fontSize: '15px',
+        lineHeight: 1.1
+      }
+    }, 'Culture Data ', h('b', null, 'Museum - Africa'))), open && h('nav', {
       className: 'drawer',
       'aria-label': 'Main'
     }, CC.NAV.map(n => h('button', {
@@ -205,7 +210,7 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
         fontWeight: 700,
         margin: '0 0 6px'
       }
-    }, 'DataTrust & CultureCommons'), h('p', {
+    }, 'Culture Data Museum - Africa'), h('p', {
       className: 'muted small',
       style: {
         margin: 0,
@@ -237,9 +242,9 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
   /* Citations */
   CC.cite = function (d, style) {
     const year = '2026';
-    if (style === 'APA') return 'CultureCommons Research Collective. (' + year + '). ' + d.title + ' [Research dossier]. DataTrust & CultureCommons. https://spottersolutions.github.io/DataTrust-Africa/app/';
-    if (style === 'MLA') return 'CultureCommons Research Collective. "' + d.title + '." DataTrust & CultureCommons, ' + year + ', spottersolutions.github.io/DataTrust-Africa/app/.';
-    return 'CultureCommons Research Collective. "' + d.title + '." Research dossier. DataTrust & CultureCommons, ' + year + '. https://spottersolutions.github.io/DataTrust-Africa/app/.';
+    if (style === 'APA') return 'CultureCommons Research Collective. (' + year + '). ' + d.title + ' [Research dossier]. Culture Data Museum - Africa. https://spottersolutions.github.io/DataTrust-Africa/app/';
+    if (style === 'MLA') return 'CultureCommons Research Collective. "' + d.title + '." Culture Data Museum - Africa, ' + year + ', spottersolutions.github.io/DataTrust-Africa/app/.';
+    return 'CultureCommons Research Collective. "' + d.title + '." Research dossier. Culture Data Museum - Africa, ' + year + '. https://spottersolutions.github.io/DataTrust-Africa/app/.';
   };
   CC.store = {
     get(key, fallback) {
@@ -2821,11 +2826,11 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
         fontSize: '20px',
         margin: '0 0 8px'
       }
-    }, 'DataTrust ', h('span', {
+    }, 'Culture Data ', h('span', {
       style: {
         color: '#ed8a34'
       }
-    }, '& CultureCommons')), h('p', {
+    }, 'Museum - Africa')), h('p', {
       className: 'small',
       style: {
         maxWidth: '420px',
