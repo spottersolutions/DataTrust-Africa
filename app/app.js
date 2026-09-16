@@ -339,7 +339,34 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
       onClick: () => go('explore', {
         q: label
       })
-    }, icon + ' ' + label))), h('div', {
+    }, icon + ' ' + label))), /* Premium marketplace — paid dossiers exposed front and center */
+    h('section', {
+      className: 'mb'
+    }, h('div', {
+      className: 'flex between mb'
+    }, h('div', null, h('h2', {
+      className: 'section-title',
+      style: {
+        margin: 0
+      }
+    }, 'Premium Research'), h('p', {
+      className: 'muted small',
+      style: {
+        margin: '6px 0 0'
+      }
+    }, 'Deep-dive dossiers with full analysis, evidence layers, sources and audio. One-time purchase, yours forever.')), h('button', {
+      className: 'btn small',
+      onClick: () => go('research', {
+        tier: 'paid'
+      })
+    }, 'Browse all premium →')), h('div', {
+      className: 'cards'
+    }, CC.DOSSIERS.filter(d => d.tier && d.tier !== 'Open').slice(0, 5).map((d, i) => h(CC.DossierCard, {
+      key: d.id,
+      d,
+      go,
+      i
+    })))), h('div', {
       className: 'grid'
     }, h('section', null, h(CC.SectionTitle, {
       link: 'All research',
@@ -793,11 +820,12 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
 
   /* ---------------------- RESEARCH INDEX + SYNTHESIZER ---------------------- */
   CC.ResearchIndex = function ResearchIndex({
-    go
+    go,
+    presetTier
   }) {
     const [q, setQ] = useState('');
-    const [tierFilter, setTierFilter] = useState('All');
-    const filtered = CC.DOSSIERS.filter(d => (tierFilter === 'All' || d.tier === tierFilter) && (d.title + ' ' + d.category + ' ' + d.region).toLowerCase().includes(q.toLowerCase()));
+    const [tierFilter, setTierFilter] = useState(presetTier === 'paid' ? 'Plus' : 'All');
+    const filtered = CC.DOSSIERS.filter(d => (tierFilter === 'All' || d.tier === tierFilter || tierFilter === 'Plus' && presetTier === 'paid' && d.tier !== 'Open') && (d.title + ' ' + d.category + ' ' + d.region).toLowerCase().includes(q.toLowerCase()));
     return h('div', {
       className: 'page'
     }, h(CC.SectionTitle, null, 'Research · ' + CC.DOSSIERS.length + ' dossiers'), h('p', {
@@ -821,7 +849,9 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
       key: t,
       className: 'chip' + (tierFilter === t ? ' active' : ''),
       onClick: () => setTierFilter(t)
-    }, t === 'Open' ? 'Free' : t))), h('div', {
+    }, t === 'Open' ? 'Free' : t)), presetTier === 'paid' && h('span', {
+      className: 'tag amber'
+    }, 'Showing premium')), h('div', {
       className: 'mb'
     }, h('button', {
       className: 'btn dark',
@@ -2570,7 +2600,8 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
           go,
           preset: typeof params.synthesize === 'string' ? params.synthesize : ''
         }) : h(CC.ResearchIndex, {
-          go
+          go,
+          presetTier: params.tier
         });
         break;
       case 'compare':
