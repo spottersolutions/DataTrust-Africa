@@ -71,8 +71,47 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
       onClick: () => go('home'),
       role: 'button',
       tabIndex: 0,
-      onKeyDown: e => e.key === 'Enter' && go('home')
-    }, 'DataTrust ', h('b', null, '& CultureCommons')), open && h('nav', {
+      onKeyDown: e => e.key === 'Enter' && go('home'),
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+      }
+    }, h('svg', {
+      width: '34',
+      height: '34',
+      viewBox: '0 0 44 44',
+      fill: 'none',
+      'aria-hidden': 'true'
+    }, h('rect', {
+      x: '8',
+      y: '8',
+      width: '28',
+      height: '28',
+      rx: '3',
+      transform: 'rotate(45 22 22)',
+      fill: '#d86d16',
+      opacity: '0.15'
+    }), h('rect', {
+      x: '12',
+      y: '12',
+      width: '20',
+      height: '20',
+      rx: '2',
+      transform: 'rotate(45 22 22)',
+      stroke: '#d86d16',
+      strokeWidth: '1.5'
+    }), h('circle', {
+      cx: '22',
+      cy: '22',
+      r: '4',
+      fill: '#11130f'
+    }), h('path', {
+      d: 'M22 4v6M22 34v6M4 22h6M34 22h6',
+      stroke: '#d86d16',
+      strokeWidth: '1.5',
+      strokeLinecap: 'round'
+    })), h('span', null, 'DataTrust ', h('b', null, '& CultureCommons'))), open && h('nav', {
       className: 'drawer',
       'aria-label': 'Main'
     }, CC.NAV.map(n => h('button', {
@@ -89,6 +128,12 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
         margin: '8px 0'
       }
     }), h('button', {
+      className: page === 'marketplace' ? 'active' : '',
+      onClick: () => {
+        go('marketplace');
+        setOpen(false);
+      }
+    }, '🛍 Marketplace'), h('button', {
       className: page === 'library' ? 'active' : '',
       onClick: () => {
         go('library');
@@ -2478,6 +2523,80 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
     }, h('strong', null, 'Unlocked ✓ '), 'Full content, audio and citations are available on every dossier in your library.'));
   };
 })();/* ================================================================
+   Premium Marketplace — paid dossiers, exposed and browsable
+   ================================================================ */
+(function () {
+  const {
+    useState
+  } = React;
+  const h = React.createElement;
+  CC.MarketplacePage = function MarketplacePage({
+    go
+  }) {
+    const [tier, setTier] = useState('All');
+    const [region, setRegion] = useState('All');
+    const paid = CC.DOSSIERS.filter(d => d.tier && d.tier !== 'Open');
+    const regions = ['All'].concat(Array.from(new Set(paid.map(d => d.region))));
+    const shown = paid.filter(d => (tier === 'All' || d.tier === tier) && (region === 'All' || d.region === region));
+    return h('div', {
+      className: 'page'
+    }, h('div', {
+      className: 'hero',
+      style: {
+        minHeight: '220px',
+        borderRadius: '22px',
+        marginBottom: '24px',
+        background: 'linear-gradient(90deg,#171816f0,#3d2a12c0),url(https://images.unsplash.com/photo-1564399579883-451a5d44ec08?auto=format&fit=crop&w=1400&q=80) center/cover'
+      }
+    }, h('div', {
+      className: 'hero-inner',
+      style: {
+        padding: '36px 40px'
+      }
+    }, h('div', {
+      className: 'eyebrow',
+      style: {
+        color: '#ed8a34'
+      }
+    }, 'Premium Research Marketplace'), h('h1', {
+      style: {
+        fontSize: '42px'
+      }
+    }, paid.length + ' deep-dive dossiers.'), h('p', {
+      style: {
+        fontSize: '15px',
+        maxWidth: '620px'
+      }
+    }, 'Full analysis, evidence layers, sources, audio and citations. One-time purchase per dossier — yours forever. Free dossiers always stay free.'))), h('div', {
+      className: 'flex mb'
+    }, ['All', 'Plus', 'Pro'].map(t => h('button', {
+      key: t,
+      className: 'chip' + (tier === t ? ' active' : ''),
+      onClick: () => setTier(t)
+    }, t === 'All' ? 'All tiers' : t + ' · $' + (t === 'Pro' ? 9 : 4))), h('select', {
+      className: 'input',
+      value: region,
+      onChange: e => setRegion(e.target.value),
+      'aria-label': 'Filter by region',
+      style: {
+        marginLeft: 'auto'
+      }
+    }, regions.map(r => h('option', {
+      key: r
+    }, r)))), h('div', {
+      className: 'cards c3'
+    }, shown.map((d, i) => h(CC.DossierCard, {
+      key: d.id,
+      d,
+      go,
+      i
+    }))), shown.length === 0 && h(CC.EmptyState, {
+      title: 'No dossiers in this filter',
+      body: 'Try another tier or region.',
+      cta: null
+    }));
+  };
+})();/* ================================================================
    Main App + workspace dashboard (new design)
    ================================================================ */
 (function () {
@@ -2630,6 +2749,11 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
         content = h(CC.LibraryPage, {
           go,
           user
+        });
+        break;
+      case 'marketplace':
+        content = h(CC.MarketplacePage, {
+          go
         });
         break;
       case 'commons':
