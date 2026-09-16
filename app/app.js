@@ -72,8 +72,17 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
       role: 'button',
       tabIndex: 0,
       onKeyDown: e => e.key === 'Enter' && go('home')
-    }, 'DataTrust ', h('b', null, '& CultureCommons')), h('nav', {
-      className: 'links' + (open ? ' mobile-open' : ''),
+    }, 'DataTrust ', h('b', null, '& CultureCommons')), h('button', {
+      className: 'burger',
+      style: {
+        marginLeft: 0,
+        marginRight: '8px'
+      },
+      onClick: () => setOpen(!open),
+      'aria-expanded': open,
+      'aria-label': 'Menu'
+    }, '☰'), open && h('nav', {
+      className: 'drawer',
       'aria-label': 'Main'
     }, CC.NAV.map(n => h('button', {
       key: n.id,
@@ -83,8 +92,28 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
         setOpen(false);
       },
       'aria-current': page === n.id ? 'page' : undefined
-    }, n.label))), h('div', {
-      className: 'actions'
+    }, n.label)), h('hr', {
+      className: 'hr',
+      style: {
+        margin: '8px 0'
+      }
+    }), h('button', {
+      className: page === 'library' ? 'active' : '',
+      onClick: () => {
+        go('library');
+        setOpen(false);
+      }
+    }, 'My Library'), h('button', {
+      className: page === 'workspace' ? 'active' : '',
+      onClick: () => {
+        go('workspace');
+        setOpen(false);
+      }
+    }, 'My Research')), h('div', {
+      className: 'actions',
+      style: {
+        marginLeft: 'auto'
+      }
     }, h('button', {
       className: 'btn small',
       onClick: onSearch,
@@ -2387,6 +2416,47 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
     }, mode === 'signup' ? 'Sign in' : 'Create an account'))));
   };
 })();/* ================================================================
+   My Library — dossiers the user has purchased/unlocked
+   ================================================================ */
+(function () {
+  const h = React.createElement;
+  CC.LibraryPage = function LibraryPage({
+    go,
+    user
+  }) {
+    const owned = CC.DOSSIERS.filter(d => CC.store.get('owned-' + d.id, false));
+    const paid = owned.filter(d => d.tier && d.tier !== 'Open');
+    const spent = paid.reduce((a, d) => a + (d.price || 0), 0);
+    return h('div', {
+      className: 'page narrow'
+    }, h(CC.SectionTitle, null, 'My Library'), h('p', {
+      className: 'muted mb'
+    }, user ? 'Dossiers you have unlocked, tied to this device. Sign in keeps your research workspace; purchases are recorded locally in this prototype.' : 'Dossiers you have unlocked on this device.'), paid.length > 0 && h('div', {
+      className: 'stat-grid mb',
+      style: {
+        gridTemplateColumns: 'repeat(2,1fr)'
+      }
+    }, h('div', {
+      className: 'stat'
+    }, h('b', null, paid.length), h('span', null, 'Unlocked dossiers')), h('div', {
+      className: 'stat'
+    }, h('b', null, '$' + spent.toFixed(2)), h('span', null, 'Total invested'))), owned.length === 0 ? h(CC.EmptyState, {
+      title: 'Your library is empty',
+      body: 'Free dossiers are always open. When you unlock a Plus or Pro dossier, it appears here for quick access.',
+      cta: 'Browse research',
+      onAction: () => go('research')
+    }) : h('div', {
+      className: 'cards c2'
+    }, owned.map((d, i) => h(CC.DossierCard, {
+      key: d.id,
+      d,
+      go,
+      i
+    }))), paid.length > 0 && h('div', {
+      className: 'notice green mt'
+    }, h('strong', null, 'Unlocked ✓ '), 'Full content, audio and citations are available on every dossier in your library.'));
+  };
+})();/* ================================================================
    Main App + workspace dashboard (new design)
    ================================================================ */
 (function () {
@@ -2521,6 +2591,12 @@ CC.DOSSIERS.forEach(function(d){var words=(d.audioText||d.overview).split(/\s+/)
         content = h(CC.WorkspacePage, {
           workspace,
           go
+        });
+        break;
+      case 'library':
+        content = h(CC.LibraryPage, {
+          go,
+          user
         });
         break;
       case 'commons':
