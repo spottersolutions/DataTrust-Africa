@@ -3,8 +3,10 @@
    After purchase, set the link's confirmation page to:
    https://spottersolutions.github.io/DataTrust-Africa/app/index.html?unlocked={CHECKOUT_CLIENT_REFERENCE_ID} */
 window.STRIPE_PAYMENT_LINKS = {
-  Plus: '',   // e.g. https://buy.stripe.com/xxxx ($4 link)
-  Pro: ''     // e.g. https://buy.stripe.com/yyyy ($9 link)
+  // Single test-mode link bundling both tiers ($4 + $9 = $13).
+  // Replace with separate live links when going to production.
+  Plus: 'https://buy.stripe.com/test_00wbJ23vBcakgtl4lm4ZG00',
+  Pro: 'https://buy.stripe.com/test_00wbJ23vBcakgtl4lm4ZG00'
 };
 window.SUPABASE_CONFIG = {
   url: 'https://agfkymkpyoqhbyjvagki.supabase.co',
